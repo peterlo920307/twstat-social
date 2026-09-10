@@ -49,7 +49,28 @@ class Value:
 
 
 _MISSING = {".", "．", "…", "‥", "-", "－", "―", "─", ""}
-_BRACKET = re.compile(r"^└─\s*([\d,.]+)\s*─┘$")
+
+# A figure that spans several printed columns is set inside a drawn brace, and
+# the digitisation kept the brace in the cell. The brace is drawn with whatever
+# combination of corner and rule characters made the width come out right, so
+# the number can be wrapped as └─42─┘, ┌──126──┐, └───────76───────┘, or with a
+# single corner on one side only. Matching one of those spellings and not the
+# others discards figures: the narrow pattern used until docs/W06_layout.md lost
+# 121 values in the published corpus alone.
+_BRACE = re.compile(r"^[┌└├┐┘┤│]?[─—]*\s*(.+?)\s*[─—]*[┌└├┐┘┤│]?$")
+_BRACE_CHARS = "┌└├┐┘┤│─—"
+
+
+def _number(text: str) -> float | None:
+    """Read a decimal number, or return ``None`` if the text is not one.
+
+    Thousands separators are dropped. Anything else, a date such as ``32.12.22``
+    included, is not a number: ``float`` would reject it and so does this.
+    """
+    try:
+        return float(text.replace(",", "").replace(" ", ""))
+    except ValueError:
+        return None
 
 
 def parse(cell: object) -> Value:
@@ -63,6 +84,10 @@ def parse(cell: object) -> Value:
     <Flag.LESS_THAN_ONE_UNIT: 'less_than_one_unit'>
     >>> parse("└─42─┘").number
     42.0
+    >>> parse("┌────298────┐").number
+    298.0
+    >>> parse("└32.12.22").flag
+    <Flag.NON_NUMERIC: 'non_numeric'>
     """
     if cell is None:
         return Value(None, Flag.MISSING, "")
@@ -70,16 +95,20 @@ def parse(cell: object) -> Value:
     if raw in _MISSING or raw.lower() == "nan":
         return Value(None, Flag.MISSING, raw)
 
-    bracket = _BRACKET.match(raw)
-    if bracket:
-        try:
-            return Value(float(bracket.group(1).replace(",", "")), Flag.BRACKET_ARTIFACT, raw)
-        except ValueError:
-            return Value(None, Flag.BRACKET_ARTIFACT, raw)
+    if any(character in raw for character in _BRACE_CHARS):
+        brace = _BRACE.match(raw)
+        inner = brace.group(1) if brace else ""
+        # A brace can hold the compilers' missing marker as readily as a figure,
+        # and when it does the cell means missing, not unreadable.
+        if inner in _MISSING:
+            return Value(None, Flag.MISSING, raw)
+        number = _number(inner)
+        if number is not None:
+            return Value(number, Flag.BRACKET_ARTIFACT, raw)
+        return Value(None, Flag.NON_NUMERIC, raw)
 
-    try:
-        number = float(raw.replace(",", "").replace(" ", ""))
-    except ValueError:
+    number = _number(raw)
+    if number is None:
         return Value(None, Flag.NON_NUMERIC, raw)
 
     if number == 0:

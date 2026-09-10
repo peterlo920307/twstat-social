@@ -30,8 +30,8 @@ def test_extract_writes_a_csv(corpus, tmp_path, capsys):
     assert destination.exists()
 
     frame = pd.read_csv(destination)
-    assert len(frame) == 36_570
-    assert "36,570 rows" in capsys.readouterr().out
+    assert len(frame) == 36_672
+    assert "36,672 rows" in capsys.readouterr().out
 
 
 @pytest.mark.corpus

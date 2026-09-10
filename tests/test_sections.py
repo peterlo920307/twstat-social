@@ -1,6 +1,7 @@
 """Detection of stacked tables."""
 
 import pandas as pd
+import pytest
 
 from twstat.sections import find, header_rows
 
@@ -62,3 +63,32 @@ def test_a_specification_book_reports_how_many_sections_it_holds():
     book.section("Test_Mt998", 1).add_range(2, 3, "校數")
     book.section("Test_Mt998", 2).add_range(2, 3, "學生數")
     assert len(book) == 2
+
+
+@pytest.mark.parametrize("stop", [".", "．"])
+def test_section_markers_are_found_with_either_full_stop(tmp_path, stop):
+    # The full-width U+FF0E is used interchangeably with the ASCII period in
+    # this compendium and looks identical in print. Only the ASCII form was
+    # accepted until docs/W06_layout.md, and the two sections below were read
+    # as one: every figure correct, every attribution wrong.
+    rows = [
+        ["表995 全形標記測試", None],
+        [f"1{stop}官等", None],
+        [None, "人數"],
+        ["十 一 年(1922)", 10],
+        [f"2{stop}性別", None],
+        [None, "人數"],
+        ["十 一 年(1922)", 20],
+    ]
+    path = tmp_path / "Test_Mt995.xlsx"
+    pd.DataFrame(rows).to_excel(path, header=False, index=False)
+    frame = pd.read_excel(path, header=None)
+    assert [s.number for s in find(frame)] == [1, 2]
+
+
+def test_a_decimal_number_is_not_a_section_marker(tmp_path):
+    rows = [["表994", None], ["1.5", 3], ["十 一 年(1922)", 10]]
+    path = tmp_path / "Test_Mt994.xlsx"
+    pd.DataFrame(rows).to_excel(path, header=False, index=False)
+    frame = pd.read_excel(path, header=None)
+    assert len(find(frame)) == 1

@@ -14,7 +14,10 @@ def tidy(raw_dir):
 
 
 def test_expected_shape(tidy):
-    assert len(tidy) == 36_570
+    # 36,570 until the brace pattern was widened in docs/W06_layout.md, which
+    # recovered 102 figures that had been set inside a drawn brace and were
+    # being discarded as unreadable. No existing value changed.
+    assert len(tidy) == 36_672
     assert tidy["table_id"].nunique() == 48
     assert tidy.groupby(["table_id", "section"]).ngroups == 65
 
