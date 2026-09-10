@@ -16,6 +16,7 @@ the documents written for readers of the finished work are in English.
 |---|---|
 | [`../README.md`](../README.md) | What the package does, what carries over to another source, and what went wrong |
 | [`CODEBOOK.md`](CODEBOOK.md) | Every column of `data/tidy.csv`, its type, and what its values mean |
+| [`DESIGN.md`](DESIGN.md) | Eleven decisions, the alternatives they were chosen over, and what each costs |
 | [`WORK.md`](WORK.md) | What is still open |
 
 ## How the dataset was built

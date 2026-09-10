@@ -86,6 +86,8 @@ The package separates the parts that generalise from the part that does not.
 
 Only `corpus1946` is about this particular compendium. How far the rest carries
 over was tested rather than asserted, and the answer is mixed; see below.
+[`docs/DESIGN.md`](docs/DESIGN.md) sets out the eleven decisions behind the
+schema, the alternatives each was chosen over, and what each one costs.
 
 **Column meanings are written by hand.** Automated header reconstruction was
 attempted and abandoned, for reasons given below.
