@@ -11,7 +11,7 @@ Status: [ ] open · [x] done · [!] dropped, with a reason
 ## Generalisation
 - [x] W05 Find a second corpus and test `eradate` against it — docs/W05_generalisation.md
 - [x] W06 Test `sections` and `values` against that corpus; record what breaks — docs/W06_layout.md
-- [ ] W07 State plainly in the docs which parts are corpus-agnostic
+- [x] W07 State plainly in the docs which parts are corpus-agnostic — README "What carries over"
 
 ## Documentation
 - [ ] W08 Add an index to `docs/` so the investigation record is navigable

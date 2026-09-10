@@ -38,7 +38,7 @@ what makes the result checkable: every number can be read back from the source
 and compared, so the claim is a complete check rather than an accuracy estimate.
 
 For the three sections of the compendium processed here — education, health
-services and poor relief — that is **36,570 rows, 28,569 values, 48 tables,
+services and poor relief — that is **36,672 rows, 28,667 values, 48 tables,
 1897–1945, and no mismatches**.
 
 ## Install
@@ -84,16 +84,60 @@ The package separates the parts that generalise from the part that does not.
 | `sampling` | Coding sheets and inter-coder agreement |
 | `corpus1946` | The specifications for this particular compendium |
 
-Everything except `corpus1946` describes conventions of Japanese and
-Republican-era statistical publishing rather than one book.
+Only `corpus1946` is about this particular compendium. How far the rest carries
+over was tested rather than asserted, and the answer is mixed; see below.
 
 **Column meanings are written by hand.** Automated header reconstruction was
 attempted and abandoned, for reasons given below.
 
-## Three things that went wrong
+## What carries over to another source, and what does not
+
+It is easy to claim that code written for one book is general. Everything below
+was measured against material this package had never seen: two external corpora
+published by Hitotsubashi University, and the 582 tables of the compendium's
+other 21 chapters. `scripts/second_corpus.py` and `scripts/holdout.py` reproduce
+every figure. The full accounts are in `docs/W05_generalisation.md` and
+`docs/W06_layout.md`.
+
+**The period taxonomy carries over.** The 年 / 年度 distinction — a calendar year
+against a fiscal year running 1 April to 31 March — is not a quirk of this
+compendium. Of 20,419 era expressions in the index to the Japanese Imperial
+Statistical Yearbook, 1882–1940, the parser typed every one: 15,311 calendar
+years and 5,108 fiscal years. Different government, different country, thirty
+years earlier.
+
+**The missing-value legend carries over within the compendium.** Across 459,749
+cells of unseen chapters the proportions sit close to the chapters the code was
+written against: 70.0% numbers against 74.3%, 23.3% missing against 18.4%.
+
+**Resolving the Gregorian year does not carry over.** `eradate` reads the year
+out of a parenthesised suffix, which 98.2% of this compendium's row labels carry
+and the yearbook never prints. On the yearbook it resolved **0 years out of
+33,116 labels**. It returns the period type and no year, which is the honest
+answer, but anyone reusing this on a source dated by era alone will have to add
+the arithmetic themselves. It is safe to do: the conversion agrees with the
+printed year on all 59 labelled pairs in the yearbook and all 117 checkable
+labels here. It is simply not needed for this corpus.
+
+**Section handling is more specialised than it looks.** 11 of our 50 tables are
+stacked, but only 20 of the other 582. Education, health and welfare had their
+categories reorganised repeatedly across fifty years, and the compilers cut such
+tables into parts rather than merge them. The three chapters that motivated this
+machinery are the three that need it most; on the rest of the book it does
+nothing.
+
+**One shape is out of scope entirely.** 151 of the 632 sections in the unseen
+chapters — 23.9% — are cross-sectional snapshots with no dated rows at all, such
+as a staffing table whose rows are job titles. The schema here begins with a
+year, so these are refused rather than mangled. A quarter of the compendium
+cannot be represented by this data model, and that is worth knowing before
+planning to extend the dataset to the whole book.
+
+## Five things that went wrong
 
 These are in the repository because they are the argument for how the code is
-now structured.
+now structured. The last two were found by running the code on tables it had
+never seen, which is why that exercise is worth the trouble.
 
 **Automated header reconstruction produced plausible wrong answers.** Because a
 label's characters are distributed across the columns it spans, they can be
@@ -118,6 +162,21 @@ source's own front matter is not optional.
 `└─N─┘` typesetting artifacts as data errors. It also skipped tables whose source
 file it could not find, meaning it could return "no mismatches" for input it had
 never read. Both are fixed; the second now raises rather than passing quietly.
+
+**A full stop defeated section detection.** Stacked tables are marked `1.本省人`.
+The detector required an ASCII period; the compilers also used the full-width
+U+FF0E, `１．官等`, and in print the two are one character. 33 of the 582 unseen
+tables had their sections merged as a result — the same failure as above, again
+invisible to any check on values. None of the 33 is in the chapters used here,
+which is exactly why it survived.
+
+**The brace pattern matched one spelling out of several.** A figure spanning
+several printed columns is set inside a drawn brace which the digitisation kept
+in the cell. The pattern matched `└─42─┘` but not `┌─1─┐`, `└──126──┘` or
+`└───────76───────┘`, and those figures were discarded as unreadable. Unlike the
+one above, this was not confined to the unseen chapters: **102 figures in the
+published corpus were being thrown away.** No value was wrong, so verification
+passed; the values simply were not there.
 
 ## What is not verified
 
