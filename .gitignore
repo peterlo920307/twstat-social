@@ -7,6 +7,15 @@ raw/preface/ocr_*.txt
 # 已停用的舊版本
 .archive/
 
+# build and test artefacts
+*.egg-info/
+build/
+dist/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
