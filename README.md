@@ -55,6 +55,10 @@ twstat extract raw data/tidy.csv
 twstat verify data/tidy.csv raw
 ```
 
+[`docs/EXAMPLE.md`](docs/EXAMPLE.md) walks through one table end to end — build
+the sheet, write its specification, extract, verify, then break it and watch
+verification pass on a result missing half its rows. No download needed.
+
 Or as a library, against any similar corpus:
 
 ```python

@@ -16,7 +16,7 @@ Status: [ ] open · [x] done · [!] dropped, with a reason
 ## Documentation
 - [x] W08 Add an index to `docs/` so the investigation record is navigable
 - [x] W09 Write `docs/DESIGN.md` on the decisions and their trade-offs
-- [ ] W10 Add a short worked example a newcomer can follow
+- [x] W10 Add a short worked example a newcomer can follow — docs/EXAMPLE.md
 
 ## Data
 - [ ] W11 Regenerate `data/tidy.csv` and `data/notes.csv` from the package
