@@ -19,5 +19,5 @@ Status: [ ] open · [x] done · [!] dropped, with a reason
 - [x] W10 Add a short worked example a newcomer can follow — docs/EXAMPLE.md
 
 ## Data
-- [ ] W11 Regenerate `data/tidy.csv` and `data/notes.csv` from the package
+- [x] W11 Regenerate `data/tidy.csv` and `data/notes.csv` from the package
 - [ ] W12 Produce the validation coding sheet as a committed artefact

@@ -1,18 +1,20 @@
 # Codebook — Colonial Taiwan Social-Administration Statistics, 1895–1945
 
-v0.1 draft｜自動生成自 50 個原始 .xls 的實測剖析（2026-09-09）
+v0.2｜自 `twstat` 套件產生（2026-09-10）｜36,672 列、28,667 個數值、48 表、65 區段
 
 ## 1. 資料檔結構（tidy 長格式，每列一個觀察值）
 
 | 欄位 | 型別 | 說明 | 允許值 |
 |---|---|---|---|
 | `table_id` | str | 原表編號，對應原書表次 | Mt467–Mt505 等 |
+| `section` | int | 同一檔內第幾個區段（多表堆疊時） | 1–8 |
+| `section_label` | str | 區段標題原文；單一區段時為空 | 隨表而異 |
 | `year` | int | 西元年（自原表括號內取得） | 1897–1945 |
 | `period_type` | str | **期間基準，不可與 year 混用** | calendar_year / year_end / fiscal_year / fiscal_year_end / academic_year |
 | `dim1` | str | 第一層分類（原表上層表頭） | 隨表而異，見 §3 |
 | `dim2` | str | 第二層分類（原表下層表頭） | 隨表而異，見 §3 |
 | `value` | float | 數值；缺值為空 | ≥0 |
-| `flag` | str | 資料品質標記 | missing_dot / bracket_artifact / non_numeric / 空 |
+| `flag` | str | 資料品質標記 | missing / less_than_one_unit / bracket_artifact / 空 |
 | `src_row` | int | 原始 .xls 列號（1-based） | — |
 | `src_col` | int | 原始 .xls 欄號（1-based） | — |
 
@@ -23,13 +25,23 @@ v0.1 draft｜自動生成自 50 個原始 .xls 的實測剖析（2026-09-09）
 
 | flag | 原表樣態 | 意義 | 筆數 |
 |---|---|---|--:|
-| `missing_dot` | `.` | 缺值。**注意**：中研院 2006 年數位化時已將原書的「－」與「…」**一併轉為「.」**，兩種缺值的語意無法還原 | 7,995 |
+| `missing` | `.` | 缺值。**注意**：中研院 2006 年數位化時已將原書的「－」與「…」**一併轉為「.」**，兩種缺值的語意無法還原 | 8,005 |
 | `less_than_one_unit` | `0` | **有數不及一單位，非零** | 47 |
-| `bracket_artifact` | `└─N─┘` | 跨年合併值的排版標記，數值已抽出 | 16 |
-| `non_numeric` | 文字 | 非數值內容，value 為空 | — |
+| `bracket_artifact` | `└─N─┘`、`┌─N─┐`、`└──N──┘` 等 | 跨欄合併值的排版括弧，數值已抽出 | 108 |
+| （空） | 數字 | 一般數值 | 28,512 |
+
+`non_numeric`（純文字儲存格）不會進入 tidy 檔；該旗標只出現在 `twstat.values`
+的解析結果中。
+
+> **v0.1 → v0.2 的兩項變動**
+> `missing_dot` 更名為 `missing`。
+> `bracket_artifact` 由 16 筆增為 108 筆：原本的括弧樣式只認得 `└─N─┘` 一種寫法，
+> 排版上同樣的括弧也寫作 `┌─N─┐`、`└──N──┘`、`└───────N───────┘`，
+> 這些數字先前被當成非數值丟棄。修正後**救回 102 個數值**，
+> 既有數值一個都沒有改變。詳見 `W06_layout.md`。
 
 ⚠️ **兩個容易踩的陷阱**
-1. **`missing_dot` 不得填補為 0。**
+1. **`missing` 不得填補為 0。**
 2. **`less_than_one_unit` 的 value 雖為 0.0，但不是零**，而是左設限觀察值
    （小於一個單位）。直接計算平均會低估。
 
@@ -43,6 +55,7 @@ v0.1 draft｜自動生成自 50 個原始 .xls 的實測剖析（2026-09-09）
 | `year_end` | 年底 | 12/31 |
 | `fiscal_year` | 年度 | 4/1–翌年 3/31 |
 | `fiscal_year_end` | 年度底 | 翌年 3/31 |
+| `academic_year` | 學年 | 學年制 |
 
 **不可混用。** 逾六成觀察值為年度基準。
 

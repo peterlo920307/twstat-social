@@ -1,11 +1,16 @@
 """Checks against the real corpus. Skipped when the source files are absent."""
 
+from pathlib import Path
+
+import pandas as pd
 import pytest
 
 from twstat import extract_corpus, verify
 from twstat.corpus1946 import build
 
 pytestmark = pytest.mark.corpus
+
+DATA = Path(__file__).resolve().parent.parent / "data"
 
 
 @pytest.fixture(scope="module")
@@ -45,3 +50,23 @@ def test_specification_covers_every_downloaded_file(raw_dir):
     stems = {path.stem for path in raw_dir.glob("*.xls")}
     # Two files are cross-sectional and deliberately excluded.
     assert stems - book.files() == {"Edu_Mt467", "Hygiene_Mt496"}
+
+
+def test_the_committed_dataset_is_what_the_package_produces(tidy):
+    # data/tidy.csv drifted from the code once already, which is how it came to
+    # be missing 102 values and to use a flag name the package had dropped.
+    # Comparison is per column: a float survives the round trip only to about
+    # its last digit, and an empty string comes back as NaN.
+    published = pd.read_csv(DATA / "tidy.csv")
+    assert list(published.columns) == list(tidy.columns)
+    assert len(published) == len(tidy)
+
+    left = published.reset_index(drop=True)
+    right = tidy.reset_index(drop=True)
+    numbers = pd.testing.assert_series_equal
+    numbers(left["value"], right["value"], check_exact=False, rtol=1e-9)
+    for column in left.columns.drop("value"):
+        a = left[column].fillna("").astype(str)
+        b = right[column].fillna("").astype(str)
+        differing = (a != b).sum()
+        assert not differing, f"{column}: {differing} rows differ; run twstat extract"

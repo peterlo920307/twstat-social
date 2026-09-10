@@ -1,4 +1,4 @@
-﻿file,table_id,section,section_label,src_row,type,text
+﻿file,table_id,section,section_label,src_row,kind,text
 Edu_Mt467,Mt467,1,高等教育(1),16,note,"附註:(1)國立臺灣大學直隸中央故未列入.(2)留日返省學生尚未正式編級故另立一項.(3)省立臺北工業專科學校原係省立工業職業學校奉令改組,故本期學生數及教職員數等仍在中等教育表內."
 Edu_Mt467,Mt467,2,中等教育(1)(2),38,note,附註:(1)初中學生數包括日籍學生772名.(2)相當於初中程度之職業補習學校未計入.(3)包括普師.(4)包括簡師.
 Edu_Mt467,Mt467,4,社會教育,82,source,材料來源:根據本署教育處直接造送材料編製.
