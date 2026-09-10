@@ -14,7 +14,7 @@ Status: [ ] open · [x] done · [!] dropped, with a reason
 - [x] W07 State plainly in the docs which parts are corpus-agnostic — README "What carries over"
 
 ## Documentation
-- [ ] W08 Add an index to `docs/` so the investigation record is navigable
+- [x] W08 Add an index to `docs/` so the investigation record is navigable
 - [ ] W09 Write `docs/DESIGN.md` on the decisions and their trade-offs
 - [ ] W10 Add a short worked example a newcomer can follow
 

@@ -137,7 +137,9 @@ planning to extend the dataset to the whole book.
 
 These are in the repository because they are the argument for how the code is
 now structured. The last two were found by running the code on tables it had
-never seen, which is why that exercise is worth the trouble.
+never seen, which is why that exercise is worth the trouble. The full record,
+including the directions that were investigated and dropped, is indexed in
+[`docs/README.md`](docs/README.md).
 
 **Automated header reconstruction produced plausible wrong answers.** Because a
 label's characters are distributed across the columns it spans, they can be
