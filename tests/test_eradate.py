@@ -71,3 +71,7 @@ def test_raw_is_preserved():
 def test_truthiness_follows_year():
     assert parse("十 一 年(1922)")
     assert not parse("附註:something")
+
+
+def test_a_blank_cell_is_not_a_note():
+    assert is_note(None) is False

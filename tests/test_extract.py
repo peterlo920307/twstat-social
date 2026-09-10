@@ -126,3 +126,53 @@ def test_verify_does_not_flag_bracket_artifacts(flat_sheet, flat_spec):
     # error. It must apply the same parsing rules the extraction used.
     tidy = extract_file(flat_sheet, flat_spec)
     assert verify(tidy, flat_sheet.parent) == []
+
+
+def test_verify_reports_a_coordinate_outside_the_sheet(flat_sheet, flat_spec):
+    tidy = extract_file(flat_sheet, flat_spec)
+    tidy.loc[tidy.index[0], "src_row"] = 9999
+    mismatches = verify(tidy, flat_sheet.parent)
+    assert [m.reason for m in mismatches] == ["out of range"]
+
+
+def test_verify_reports_a_cell_it_cannot_parse(flat_sheet, flat_spec):
+    # Point a row at the title cell, which holds text where a number should be.
+    tidy = extract_file(flat_sheet, flat_spec)
+    target = tidy[tidy["value"].notna()].index[0]
+    tidy.loc[target, "src_row"] = 1
+    tidy.loc[target, "src_col"] = 1
+    mismatches = verify(tidy, flat_sheet.parent)
+    assert len(mismatches) == 1
+    assert "unparsable" in mismatches[0].reason
+
+
+def test_extract_ignores_columns_beyond_the_sheet(flat_sheet):
+    book = SpecBook()
+    book.define("Test_Mt998", 1, [(2, 2, "校數"), (99, 99, "不存在的欄")])
+    tidy = extract_file(flat_sheet, book)
+    assert set(tidy["dim1"]) == {"校數"}
+
+
+def test_extract_corpus_skips_files_without_a_specification(flat_sheet, flat_spec):
+    from twstat import extract_corpus
+
+    tidy = extract_corpus(flat_sheet.parent, flat_spec)
+    assert set(tidy["table_id"]) == {"Mt998"}
+
+
+def test_extract_corpus_returns_empty_frame_when_nothing_matches(tmp_path):
+    from twstat import extract_corpus
+    from twstat.extract import COLUMNS
+
+    empty = extract_corpus(tmp_path, SpecBook())
+    assert len(empty) == 0
+    assert list(empty.columns) == COLUMNS
+
+
+def test_extract_file_skips_sections_that_have_no_specification(stacked_sheet):
+    # Only the first of the sheet's two sections is specified. The second is
+    # passed over rather than guessed at.
+    book = SpecBook()
+    book.section(stacked_sheet.stem, 1).add_range(2, 4, "本省人")
+    tidy = extract_file(stacked_sheet, book)
+    assert set(tidy["section"]) == {1}

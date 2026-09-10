@@ -35,9 +35,7 @@ def coding_sheet(
     groups = populated.groupby(["table_id", "section"], sort=True)
     per_group = max(1, size // max(1, groups.ngroups))
 
-    drawn = [
-        group.sample(min(len(group), per_group), random_state=seed) for _, group in groups
-    ]
+    drawn = [group.sample(min(len(group), per_group), random_state=seed) for _, group in groups]
     sample = pd.concat(drawn, ignore_index=True) if drawn else populated.head(0)
     if len(sample) > size:
         sample = sample.sample(size, random_state=seed)

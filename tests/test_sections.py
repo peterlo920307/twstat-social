@@ -52,3 +52,13 @@ def test_section_without_dates_reports_no_data_row(tmp_path):
     frame = pd.read_excel(path, header=None)
     first, headers = header_rows(frame, find(frame)[0])
     assert first is None and headers == []
+
+
+def test_a_specification_book_reports_how_many_sections_it_holds():
+    from twstat.spec import SpecBook
+
+    book = SpecBook()
+    assert len(book) == 0
+    book.section("Test_Mt998", 1).add_range(2, 3, "校數")
+    book.section("Test_Mt998", 2).add_range(2, 3, "學生數")
+    assert len(book) == 2

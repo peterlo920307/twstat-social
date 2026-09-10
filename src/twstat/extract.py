@@ -111,14 +111,19 @@ def extract_file(path: str | Path, spec: SpecBook, table_id: str | None = None) 
     return pd.DataFrame([asdict(row) for row in rows], columns=COLUMNS)
 
 
+SPREADSHEET_SUFFIXES = (".xls", ".xlsx")
+
+
 def extract_corpus(raw_dir: str | Path, spec: SpecBook) -> pd.DataFrame:
-    """Extract every file for which a specification exists."""
+    """Extract every file for which a specification exists.
+
+    Both spreadsheet suffixes are accepted. The source corpus is ``.xls``, but
+    restricting the search to that extension makes the function silently return
+    nothing for a directory of ``.xlsx`` files.
+    """
     raw_dir = Path(raw_dir)
-    frames = [
-        extract_file(path, spec)
-        for path in sorted(raw_dir.glob("*.xls"))
-        if path.stem in spec.files()
-    ]
+    paths = sorted(path for suffix in SPREADSHEET_SUFFIXES for path in raw_dir.glob(f"*{suffix}"))
+    frames = [extract_file(path, spec) for path in paths if path.stem in spec.files()]
     frames = [frame for frame in frames if len(frame)]
     if not frames:
         return pd.DataFrame(columns=COLUMNS)

@@ -48,6 +48,31 @@ def stacked_sheet(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
+def annotated_sheet(tmp_path: Path) -> Path:
+    """A sheet whose footnotes exercise every branch of note extraction.
+
+    The first note runs onto a second line, the second is short enough to be a
+    heading rather than a continuation, and the third is a source attribution.
+    """
+    rows = [
+        ["表996 附註測試", None],
+        ["1.第一區段", None],
+        [None, "學生數"],
+        ["十 一 年(1922)", 5],
+        ["附註:(1)第一行說明", None],
+        ["接續的第二行說明文字", None],
+        ["2.第二區段", None],
+        [None, "學生數"],
+        ["十 二 年(1923)", 7],
+        ["註:短註", None],
+        ["材料來源:測試資料", None],
+    ]
+    path = tmp_path / "Test_Mt996.xlsx"
+    pd.DataFrame(rows).to_excel(path, header=False, index=False)
+    return path
+
+
+@pytest.fixture
 def flat_sheet(tmp_path: Path) -> Path:
     """One table, one header row, including each missing-value marker."""
     rows = [

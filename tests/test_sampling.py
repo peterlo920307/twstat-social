@@ -64,3 +64,28 @@ def test_kappa_is_negative_below_chance():
 def test_kappa_rejects_mismatched_lengths():
     with pytest.raises(ValueError):
         cohen_kappa(["a"], ["a", "b"])
+
+
+def test_coding_sheet_trims_to_the_requested_size(tidy):
+    # Three groups always contribute at least one row each, so a size of two
+    # is over-filled and then trimmed back to what was asked for.
+    sheet = coding_sheet(tidy, size=2, seed=0)
+    assert len(sheet) == 2
+
+
+def test_kappa_rejects_an_empty_comparison():
+    with pytest.raises(ValueError):
+        cohen_kappa([], [])
+
+
+def test_kappa_is_one_when_both_coders_used_a_single_label():
+    # Chance agreement is 1.0 here, so the usual formula divides by zero. Two
+    # coders who only ever wrote the same label agree completely by
+    # construction; there is no information to correct for.
+    assert cohen_kappa(list("aaa"), list("aaa")) == 1.0
+
+
+def test_kappa_is_zero_when_a_single_label_still_disagrees():
+    # Both coders used one label each but not the same one. Expected agreement
+    # is still 1.0, and observed agreement is 0.
+    assert cohen_kappa(list("aaa"), list("bbb")) == 0.0

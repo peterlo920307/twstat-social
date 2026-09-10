@@ -43,3 +43,8 @@ def test_text_is_flagged_not_silently_dropped():
 def test_missing_is_distinguishable_from_below_one_unit():
     # Filling either with zero would be wrong, but for different reasons.
     assert parse(".").flag is not parse("0").flag
+
+
+def test_a_value_is_falsy_when_no_number_was_read():
+    assert not parse("－")
+    assert parse("1,234")

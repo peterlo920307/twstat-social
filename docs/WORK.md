@@ -5,7 +5,7 @@ Status: [ ] open · [x] done · [!] dropped, with a reason
 ## Tooling
 - [x] W01 Add ruff for linting and formatting; fix what it reports
 - [x] W02 Add mypy; annotate until it passes on `src/`
-- [ ] W03 Raise coverage where it is thin: notes 38%, cli 0%, verify 85%
+- [x] W03 Raise coverage where it is thin: notes 38%, cli 0%, verify 85%
 - [x] W04 Extend CI with lint and type-check jobs
 
 ## Generalisation
