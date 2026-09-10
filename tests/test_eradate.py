@@ -75,3 +75,29 @@ def test_truthiness_follows_year():
 
 def test_a_blank_cell_is_not_a_note():
     assert is_note(None) is False
+
+
+# The labels below are taken verbatim from the index to the Japanese Imperial
+# Statistical Yearbook (Hitotsubashi IER), a corpus this module was not written
+# against. They fix the boundary measured in docs/W05_generalisation.md: the
+# period taxonomy carries over, the Gregorian year does not.
+
+
+@pytest.mark.parametrize(
+    "label, period",
+    [
+        ("明治32年", Period.CALENDAR_YEAR),
+        ("大正元年", Period.CALENDAR_YEAR),
+        ("昭和5年度", Period.FISCAL_YEAR),
+        ("大正9年度", Period.FISCAL_YEAR),
+    ],
+)
+def test_period_type_survives_a_corpus_without_parenthesised_years(label, period):
+    assert parse(label).period is period
+
+
+@pytest.mark.parametrize("label", ["明治32年", "大正元年", "昭和5年度"])
+def test_no_year_is_invented_when_the_source_does_not_print_one(label):
+    # Returning None here is the documented limit, not a failure. Inferring the
+    # year would mean converting the era numeral, which this module does not do.
+    assert parse(label).year is None

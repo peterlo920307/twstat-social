@@ -1,9 +1,15 @@
 """Parsing of East Asian era-based dates found in historical statistical tables.
 
-Tables printed in Taiwan between 1895 and 1945 label their rows with a mixture of
-Japanese and Republican era years. The typography is inconsistent: numerals are
-often separated by spaces for justification, the Gregorian equivalent may or may
-not be appended in parentheses, and the same table may mix four different period
+The 1946 compendium covers fifty years that were mostly under Japanese rule, but
+it does not date its rows the way the colonial sources did. Every one of the
+45,691 non-blank cells in the corpus used here was checked: none names a
+Japanese era. The compilers re-dated the whole run to Republican reckoning,
+writing pre-1912 years as 民國前 N, and appended the Gregorian year in
+parentheses. That parenthesised year appears on 98.2% of date-like row labels;
+only 5.3% name an era at all.
+
+What is inconsistent is the typography and the reporting convention. Numerals are
+separated by spaces for justification, and a single table may mix four period
 conventions whose meanings do not coincide.
 
 The period distinction matters. A "fiscal year end" figure is dated 31 March of
@@ -77,11 +83,20 @@ def is_note(text: object) -> bool:
 def parse(text: object) -> EraDate:
     """Interpret a row label.
 
-    The Gregorian year is taken from the parenthesised form when present. Era
-    numerals are not converted arithmetically: in this corpus the parenthesised
-    year is authoritative and present on 91% of labels, and inferring the
-    remainder from era numerals alone would introduce errors that no downstream
-    check could detect.
+    The Gregorian year is taken from the parenthesised form. Era numerals are not
+    converted arithmetically, and it is worth being precise about why, because
+    the obvious reason is not the real one. Arithmetic conversion is not unsafe
+    here: on the 117 label occurrences that carry both an era numeral and a
+    printed Gregorian year, 民國前 N = 1912 - N and 民國 N = 1911 + N agree with
+    the printed year every time. It is simply useless. Only 5.3% of date-like
+    labels name an era, and all but two of those also carry the parenthesised
+    year, so conversion would recover almost nothing that is not already there
+    while adding a numeral parser to the failure surface.
+
+    The consequence is a real limit rather than a defect. On a source that does
+    not print the Gregorian equivalent this function returns the period type and
+    no year: see ``docs/W05_generalisation.md``, where it resolved 0 years out of
+    33,116 labels in the Japanese Imperial Statistical Yearbook index.
 
     >>> parsed = parse("民國前 十 三 年度底(1899)")
     >>> parsed.year, parsed.period.value

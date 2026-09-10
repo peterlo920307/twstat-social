@@ -9,7 +9,7 @@ Status: [ ] open · [x] done · [!] dropped, with a reason
 - [x] W04 Extend CI with lint and type-check jobs
 
 ## Generalisation
-- [ ] W05 Find a second corpus and test `eradate` against it
+- [x] W05 Find a second corpus and test `eradate` against it — docs/W05_generalisation.md
 - [ ] W06 Test `sections` and `values` against that corpus; record what breaks
 - [ ] W07 State plainly in the docs which parts are corpus-agnostic
 
