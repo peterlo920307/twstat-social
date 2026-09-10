@@ -1,0 +1,37 @@
+{
+  "upload_type": "dataset",
+  "title": "Colonial Taiwan Social-Administration Statistics, 1895-1945: Education, Health Services, and Poor Relief",
+  "publication_date": "TODO-YYYY-MM-DD",
+  "creators": [
+    {
+      "name": "TODO-Family, Given",
+      "affiliation": "TODO-Department, University",
+      "orcid": "TODO-0000-0000-0000-0000"
+    }
+  ],
+  "description": "<p>TODO: 100-150 words. Must be original prose, NOT copied from the source website.</p><p>Cover: what the data are (50 statistical tables on education, health services and poor relief in Japanese colonial Taiwan), the source (Taiwan Provincial Administrative Executive Office, 1946, digitised by Academia Sinica), what was done (converted from legacy .xls into tidy long format with normalised era-dating, standardised missing-value codes, and cell-level provenance), and reuse potential.</p>",
+  "access_right": "open",
+  "license": "cc-by-4.0",
+  "language": "zho",
+  "version": "1.0.0",
+  "keywords": [
+    "colonial Taiwan",
+    "historical statistics",
+    "history of education",
+    "history of public health",
+    "poor relief",
+    "data rescue"
+  ],
+  "dates": [
+    {"type": "Collected", "start": "1895-01-01", "end": "1945-12-31"}
+  ],
+  "method": "TODO: brief statement of the transcription and validation procedure; mirror the Method section of the data paper.",
+  "related_identifiers": [
+    {
+      "identifier": "http://twstudy.iis.sinica.edu.tw/twstatistic50/",
+      "relation": "isDerivedFrom",
+      "resource_type": "dataset"
+    }
+  ],
+  "notes": "Underlying source is a 1946 government publication and is not subject to copyright under Article 9 of the Copyright Act (Taiwan). The values reproduced here are facts. TODO: confirm wording with your institution."
+}
