@@ -12,14 +12,21 @@
 專案根目錄的 **`.zenodo.json`**，欄位已依規格填好，
 待填處以 `TODO-` 標記（作者、ORCID、日期、description、method）。
 
+⚠️ **授權需分開標示**：程式碼 MIT（`LICENSE`），資料與文件 CC BY 4.0
+（`LICENSE-DATA`）。Zenodo 只能選一種，選 CC BY 4.0 並在 description
+說明程式碼部分為 MIT。
+
 ## 執行順序（順序不可顛倒）
 1. **先完成資料整理與驗證**（tidy CSV + CODEBOOK.md + 驗證報告）
 2. 打包上傳 Zenodo：
-   - `data/` tidy CSV（UTF-8）
-   - `raw/` 原始 50 個 .xls（保留原貌）
-   - `docs/` CODEBOOK.md、bias_statement.md、validation 報告
-   - `scripts/` normalize.py、reshape.py、make_validation_sample.py
-   - `.zenodo.json`、README、LICENSE
+   - `data/` tidy.csv、notes.csv、validation_sample.csv（皆 UTF-8）
+   - **`raw/` 不重新散布**：原始 .xls 為中研院 2006 年數位化成果，
+     改附 `scripts/download_raw.py` 供他人自行取得（見 DESIGN.md §10）
+   - `docs/` CODEBOOK.md、DESIGN.md、EXAMPLE.md、bias_statement.md、
+     W05_generalisation.md、W06_layout.md、CODING_SHEET.md
+   - `src/twstat/` 套件本身（原規劃的 normalize.py／reshape.py／
+     make_validation_sample.py 已改寫為套件模組）
+   - `.zenodo.json`、README、LICENSE（MIT）、LICENSE-DATA（CC BY 4.0）
 3. **取得 DOI**
 4. **再投稿 JOHD** —— 投稿前無 DOI 會被直接退稿
 

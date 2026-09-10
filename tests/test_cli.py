@@ -67,3 +67,50 @@ def test_notes_writes_a_csv(corpus, tmp_path, capsys):
     frame = pd.read_csv(destination)
     assert set(frame["kind"]) <= {"note", "source"}
     assert "notes from" in capsys.readouterr().out
+
+
+def test_sample_draws_a_reproducible_blank_sheet(tmp_path, capsys):
+    tidy = pd.DataFrame(
+        {
+            "table_id": ["Mt1"] * 6 + ["Mt2"] * 6,
+            "section": [1] * 9 + [2] * 3,
+            "year": list(range(1900, 1906)) * 2,
+            "src_row": list(range(1, 7)) * 2,
+            "src_col": [2, 3, 4] * 4,
+            "value": range(12),
+            "dim1": ["甲"] * 12,
+        }
+    )
+    source = tmp_path / "tidy.csv"
+    tidy.to_csv(source, index=False)
+
+    first = tmp_path / "a" / "sheet.csv"
+    assert main(["sample", str(source), str(first), "--size", "6"]) == 0
+    assert "seed 20260909" in capsys.readouterr().out
+
+    second = tmp_path / "b.csv"
+    assert main(["sample", str(source), str(second), "--size", "6"]) == 0
+    drawn = pd.read_csv(first)
+    assert drawn.equals(pd.read_csv(second))
+    assert list(drawn.columns[-3:]) == ["coded_dim1", "coded_dim2", "note"]
+    assert drawn[["coded_dim1", "coded_dim2"]].isna().all().all()
+
+
+def test_a_different_seed_draws_a_different_sheet(tmp_path):
+    tidy = pd.DataFrame(
+        {
+            "table_id": ["Mt1"] * 20,
+            "section": [1] * 20,
+            "year": range(1900, 1920),
+            "src_row": range(1, 21),
+            "src_col": [2] * 20,
+            "value": range(20),
+            "dim1": ["甲"] * 20,
+        }
+    )
+    source = tmp_path / "tidy.csv"
+    tidy.to_csv(source, index=False)
+    one, two = tmp_path / "1.csv", tmp_path / "2.csv"
+    main(["sample", str(source), str(one), "--size", "5", "--seed", "1"])
+    main(["sample", str(source), str(two), "--size", "5", "--seed", "2"])
+    assert not pd.read_csv(one).equals(pd.read_csv(two))

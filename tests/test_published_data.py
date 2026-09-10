@@ -43,3 +43,28 @@ def test_every_row_names_the_cell_it_came_from(tidy):
     assert tidy["src_col"].notna().all()
     assert (tidy["src_row"] > 0).all()
     assert (tidy["src_col"] > 0).all()
+
+
+@pytest.fixture(scope="module")
+def sheet() -> pd.DataFrame:
+    return pd.read_csv(DATA / "validation_sample.csv")
+
+
+def test_the_coding_sheet_covers_every_section_evenly(sheet):
+    assert len(sheet) == 195
+    assert sheet["table_id"].nunique() == 48
+    counts = sheet.groupby(["table_id", "section"]).size()
+    assert counts.nunique() == 1 and counts.iloc[0] == 3
+
+
+def test_the_coding_sheet_is_blank(sheet):
+    # A coder must not be shown an answer to agree with.
+    for column in ["coded_dim1", "coded_dim2", "note"]:
+        assert sheet[column].isna().all()
+    assert "dim1" not in sheet.columns
+    assert "dim2" not in sheet.columns
+
+
+def test_every_row_of_the_coding_sheet_points_at_a_real_observation(sheet, tidy):
+    key = ["table_id", "section", "src_row", "src_col"]
+    assert sheet.merge(tidy[key], on=key, how="inner").shape[0] == len(sheet)

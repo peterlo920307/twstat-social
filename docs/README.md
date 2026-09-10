@@ -55,7 +55,8 @@ Both are reproduced by `scripts/second_corpus.py` and `scripts/holdout.py`.
 
 | | |
 |---|---|
-| [`validation_plan.md`](validation_plan.md) | The two-coder procedure and Cohen's kappa for checking `dim1` and `dim2`. Not yet carried out |
+| [`CODING_SHEET.md`](CODING_SHEET.md) | Everything a second coder needs, in one page. The blank sheet is `data/validation_sample.csv` |
+| [`validation_plan.md`](validation_plan.md) | Why verification splits into two layers, and the sampling design behind that sheet |
 
 ## Publication
 

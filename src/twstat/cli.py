@@ -29,6 +29,12 @@ def main(argv: list[str] | None = None) -> int:
     notes.add_argument("raw", type=Path)
     notes.add_argument("output", type=Path)
 
+    sample = sub.add_parser("sample", help="draw a blank coding sheet for a human coder")
+    sample.add_argument("tidy", type=Path, help="the extracted CSV")
+    sample.add_argument("output", type=Path, help="destination CSV")
+    sample.add_argument("--size", type=int, default=200, help="rows to draw (default 200)")
+    sample.add_argument("--seed", type=int, default=20260909, help="random seed")
+
     args = parser.parse_args(argv)
 
     import pandas as pd
@@ -36,6 +42,7 @@ def main(argv: list[str] | None = None) -> int:
     from .corpus1946 import build as build_specs
     from .extract import extract_corpus
     from .notes import extract_notes
+    from .sampling import coding_sheet
     from .verify import verify
 
     if args.command == "extract":
@@ -59,6 +66,16 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{len(mismatches)} mismatches out of {checked:,}", file=sys.stderr)
             return 1
         print(f"{checked:,} values checked, no mismatches")
+        return 0
+
+    if args.command == "sample":
+        sheet = coding_sheet(pd.read_csv(args.tidy), size=args.size, seed=args.seed)
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        sheet.to_csv(args.output, index=False, encoding="utf-8-sig")
+        print(
+            f"{args.output}: {len(sheet)} rows across "
+            f"{sheet.groupby(['table_id', 'section']).ngroups} sections, seed {args.seed}"
+        )
         return 0
 
     rows = [note for path in sorted(Path(args.raw).glob("*.xls")) for note in extract_notes(path)]

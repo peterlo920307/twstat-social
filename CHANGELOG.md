@@ -46,3 +46,13 @@ output identical to the scripts it replaces.
 - `data/tidy.csv` grows from 36,570 to 36,672 rows, entirely from the brace fix
   above. The file in `data/` still holds the older extraction and is regenerated
   in W11.
+
+### Added, continued
+- `twstat sample` draws a blank coding sheet from a tidy CSV, stratified across
+  sections, for the human check of `dim1` and `dim2` that the numeric
+  verification cannot perform.
+- `data/validation_sample.csv` — that sheet, 195 cells across all 65 sections,
+  committed so a second coder can start without running anything.
+- `docs/CODING_SHEET.md` — the instructions for that coder, self-contained.
+- `docs/DESIGN.md`, `docs/EXAMPLE.md`, `docs/README.md`,
+  `docs/W05_generalisation.md`, `docs/W06_layout.md`.

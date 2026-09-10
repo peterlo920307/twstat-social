@@ -53,6 +53,8 @@ pip install -e ".[dev]"
 python scripts/download_raw.py           # fetch the sources from Academia Sinica
 twstat extract raw data/tidy.csv
 twstat verify data/tidy.csv raw
+twstat notes raw data/notes.csv
+twstat sample data/tidy.csv sheet.csv    # a blank coding sheet for a human checker
 ```
 
 [`docs/EXAMPLE.md`](docs/EXAMPLE.md) walks through one table end to end — build
@@ -190,9 +192,15 @@ passed; the values simply were not there.
 
 The numeric layer is checked completely. **The semantic layer is not.** Which
 dimension a column belongs to was read off the printed layout by one person, and
-no second reader has confirmed it. `twstat.sampling` produces the coding sheets
-for doing that properly; `docs/validation_plan.md` describes the procedure.
-Until it is done, treat `dim1` and `dim2` as proposed rather than established.
+no second reader has confirmed it. Until that is done, treat `dim1` and `dim2` as
+proposed rather than established.
+
+The work is set up and waiting for someone to do it.
+[`data/validation_sample.csv`](data/validation_sample.csv) is the blank coding
+sheet — 195 cells, three from each of the 65 sections, all 48 tables — and
+[`docs/CODING_SHEET.md`](docs/CODING_SHEET.md) is everything a second coder needs
+in one page: the rules agreed in advance, how to fill it in, and how to compute
+Cohen's kappa afterwards. Two to three hours.
 
 ## Source and licensing
 

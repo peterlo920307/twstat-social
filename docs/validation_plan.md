@@ -7,7 +7,8 @@
 ### 第一層：數值轉錄正確性 → **100% 自動全檢，不需人工**
 每筆 tidy 紀錄都帶 `src_row`/`src_col`，可直接回讀原始 .xls 儲存格比對。
 → 這不是抽樣估計，是**全量核對**，可報告「N 筆中 M 筆不符」的確切數字。
-→ 由 `scripts/make_validation_sample.py` 的 `auto_verify()` 執行。
+→ 由 `twstat verify data/tidy.csv raw` 執行（`twstat.verify`）。
+→ 目前結果：**28,667 筆全數核對，0 筆不符**。
 
 **這比抽樣更強**：JOHD 審查人看到的是完整核對，不是信賴區間。
 
@@ -20,7 +21,7 @@
 ## 抽樣設計
 - **母體**：完成 tidy 化後、`dim1` 非空的所有紀錄
 - **方法**：依 `table_id` 分層，每表等額抽取
-- **樣本數**：**n = 200**（涵蓋全部 50 表，每表約 4 筆）
+- **樣本數**：目標 200，實際 **195**（每個區段等額 3 筆 × 65 區段），涵蓋全部 48 表、1898–1944
 - **亂數種子**：20260909（固定，確保可複現）
 - **程序**：
   1. 產生空白編碼表（含 table_id / src_row / src_col / year / value）
@@ -43,8 +44,18 @@
 **這是實際上的關鍵路徑**。建議：同課程同學互相擔任對方專案的第二標註者。
 200 筆的判讀工作量約 2–3 小時。
 
-## 交付
-- `scripts/make_validation_sample.py`
-  - `auto_verify(tidy_csv, xls_dir)` → 第一層全檢
-  - `draw_sample(tidy_csv, n=200, seed=20260909)` → 產生編碼表
-  - `kappa(a, b)` → Cohen's κ
+## 交付（已完成）
+本方案原先規劃的 `scripts/make_validation_sample.py` 已改寫進套件：
+
+| 原規劃 | 現況 |
+|---|---|
+| `auto_verify(tidy_csv, xls_dir)` | `twstat verify data/tidy.csv raw`（`twstat.verify`） |
+| `draw_sample(tidy_csv, n=200, seed=20260909)` | `twstat sample data/tidy.csv out.csv`（`twstat.sampling.coding_sheet`） |
+| `kappa(a, b)` | `twstat.sampling.cohen_kappa` |
+
+- **空白編碼表已產出並納入版本控制**：`data/validation_sample.csv`（195 列）
+- **編碼者說明**：`CODING_SHEET.md`，第二位編碼者只需讀這一份
+
+## 尚未完成
+**第二位編碼者仍未找到。** 在完成之前，`dim1`／`dim2` 為機器提議、未經人工確認，
+此點已寫入 README、CODEBOOK 與 DESIGN.md。
