@@ -20,24 +20,37 @@ from .eradate import EraDate, Period
 from .eradate import parse as parse_date
 from .extract import Observation, extract_corpus, extract_file
 from .notes import Note, extract_notes
-from .sampling import cohen_kappa, coding_sheet
+from .sampling import coding_sheet, cohen_kappa
 from .sections import Section
 from .sections import find as find_sections
 from .spec import ColumnSpec, SectionSpec, SpecBook
 from .values import Flag, Value
 from .values import parse as parse_value
-from .verify import Mismatch, SourceNotFound, verify
+from .verify import Mismatch, SourceNotFoundError, verify
 
 __version__ = "0.1.0"
 
 __all__ = [
-    "EraDate", "Period", "parse_date",
-    "Value", "Flag", "parse_value",
-    "Section", "find_sections",
-    "ColumnSpec", "SectionSpec", "SpecBook",
-    "Observation", "extract_file", "extract_corpus",
-    "Note", "extract_notes",
-    "Mismatch", "SourceNotFound", "verify",
-    "coding_sheet", "cohen_kappa",
+    "ColumnSpec",
+    "EraDate",
+    "Flag",
+    "Mismatch",
+    "Note",
+    "Observation",
+    "Period",
+    "Section",
+    "SectionSpec",
+    "SourceNotFoundError",
+    "SpecBook",
+    "Value",
     "__version__",
+    "coding_sheet",
+    "cohen_kappa",
+    "extract_corpus",
+    "extract_file",
+    "extract_notes",
+    "find_sections",
+    "parse_date",
+    "parse_value",
+    "verify",
 ]

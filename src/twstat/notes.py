@@ -29,6 +29,8 @@ _YEAR = re.compile(r"\(1[89]\d{2}\)")
 
 @dataclass(frozen=True)
 class Note:
+    """One footnote or source attribution, with where it was found."""
+
     file: str
     table_id: str
     section: int

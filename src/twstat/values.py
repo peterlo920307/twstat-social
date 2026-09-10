@@ -37,11 +37,14 @@ class Flag(str, Enum):
 
 @dataclass(frozen=True)
 class Value:
+    """A cell, as a number where one could be read and a reason where none could."""
+
     number: float | None
     flag: Flag | None
     raw: str
 
     def __bool__(self) -> bool:
+        """Truthy when a number was read."""
         return self.number is not None
 
 

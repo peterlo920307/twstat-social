@@ -10,6 +10,7 @@ __all__ = ["main"]
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Run the command line interface. Returns a process exit code."""
     parser = argparse.ArgumentParser(
         prog="twstat",
         description="Recover tidy data from legacy East Asian statistical tables.",
@@ -62,7 +63,7 @@ def main(argv: list[str] | None = None) -> int:
 
     rows = [note for path in sorted(Path(args.raw).glob("*.xls")) for note in extract_notes(path)]
     pd.DataFrame(rows).to_csv(args.output, index=False, encoding="utf-8-sig")
-    print(f"{args.output}: {len(rows)} notes from {len(set(r.file for r in rows))} files")
+    print(f"{args.output}: {len(rows)} notes from {len({r.file for r in rows})} files")
     return 0
 
 

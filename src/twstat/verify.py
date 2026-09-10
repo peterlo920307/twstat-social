@@ -18,18 +18,20 @@ import pandas as pd
 
 from .values import parse as parse_value
 
-__all__ = ["Mismatch", "SourceNotFound", "verify"]
+__all__ = ["Mismatch", "SourceNotFoundError", "verify"]
 
 
 @dataclass(frozen=True)
 class Mismatch:
+    """One value that does not agree with the cell it was read from."""
+
     table_id: str
     src_row: int
     src_col: int
     reason: str
 
 
-class SourceNotFound(LookupError):
+class SourceNotFoundError(LookupError):
     """Raised when a table in the data has no corresponding source file.
 
     Silently skipping such a table would let ``verify`` return an empty list for
@@ -48,12 +50,13 @@ def verify(tidy: pd.DataFrame, raw_dir: str | Path) -> list[Mismatch]:
     raw_dir = Path(raw_dir)
     mismatches: list[Mismatch] = []
 
-    for table_id, group in tidy.groupby("table_id"):
+    for key, group in tidy.groupby("table_id"):
+        table_id = str(key)
         candidates = sorted(raw_dir.glob(f"*{table_id}.xls")) + sorted(
             raw_dir.glob(f"*{table_id}.xlsx")
         )
         if not candidates:
-            raise SourceNotFound(f"no source file for {table_id} under {raw_dir}")
+            raise SourceNotFoundError(f"no source file for {table_id} under {raw_dir}")
         frame = pd.read_excel(candidates[0], header=None)
         for _, row in group.iterrows():
             if pd.isna(row["value"]):
@@ -61,7 +64,9 @@ def verify(tidy: pd.DataFrame, raw_dir: str | Path) -> list[Mismatch]:
             try:
                 cell = frame.iat[int(row["src_row"]) - 1, int(row["src_col"]) - 1]
             except IndexError:
-                mismatches.append(Mismatch(table_id, row["src_row"], row["src_col"], "out of range"))
+                mismatches.append(
+                    Mismatch(table_id, row["src_row"], row["src_col"], "out of range")
+                )
                 continue
             expected = parse_value(cell).number
             if expected is None:

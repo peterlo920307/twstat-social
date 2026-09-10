@@ -31,7 +31,7 @@ def test_records_the_originating_cell(flat_sheet, flat_spec):
 
 def test_missing_and_below_one_unit_stay_distinct(flat_sheet, flat_spec):
     tidy = extract_file(flat_sheet, flat_spec)
-    flags = dict(zip(tidy.dim1 + "/" + tidy.year.astype(str), tidy.flag))
+    flags = dict(zip(tidy.dim1 + "/" + tidy.year.astype(str), tidy.flag, strict=True))
     assert flags["校數/1923"] == Flag.MISSING.value
     assert flags["學生/1923"] == Flag.LESS_THAN_ONE_UNIT.value
 
@@ -112,12 +112,12 @@ def test_verify_ignores_rows_with_no_value(flat_sheet, flat_spec):
 def test_verify_refuses_to_pass_when_the_source_is_missing(flat_sheet, flat_spec, tmp_path):
     # Returning an empty list for input that was never read would be worse than
     # any mismatch it could report.
-    from twstat.verify import SourceNotFound
+    from twstat.verify import SourceNotFoundError
 
     tidy = extract_file(flat_sheet, flat_spec)
     empty = tmp_path / "elsewhere"
     empty.mkdir()
-    with pytest.raises(SourceNotFound):
+    with pytest.raises(SourceNotFoundError):
         verify(tidy, empty)
 
 

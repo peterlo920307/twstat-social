@@ -18,7 +18,7 @@ import re
 from dataclasses import dataclass
 from enum import Enum
 
-__all__ = ["Period", "EraDate", "parse", "is_note"]
+__all__ = ["EraDate", "Period", "is_note", "parse"]
 
 
 class Period(str, Enum):
@@ -50,6 +50,7 @@ class EraDate:
     raw: str
 
     def __bool__(self) -> bool:
+        """Truthy when a Gregorian year was resolved."""
         return self.year is not None
 
 
@@ -82,8 +83,9 @@ def parse(text: object) -> EraDate:
     remainder from era numerals alone would introduce errors that no downstream
     check could detect.
 
-    >>> parse("民國前 十 三 年度底(1899)")
-    EraDate(year=1899, period=<Period.FISCAL_YEAR_END: 'fiscal_year_end'>, raw='民國前 十 三 年度底(1899)')
+    >>> parsed = parse("民國前 十 三 年度底(1899)")
+    >>> parsed.year, parsed.period.value
+    (1899, 'fiscal_year_end')
     >>> parse("附註:(1)國立臺灣大學直隸中央").year is None
     True
     """

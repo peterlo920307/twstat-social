@@ -21,7 +21,7 @@ import pandas as pd
 
 from .eradate import parse as parse_date
 
-__all__ = ["Section", "find", "header_rows", "clean"]
+__all__ = ["Section", "clean", "find", "header_rows"]
 
 _MARKER = re.compile(r"^\d+\.[^\d]")
 
@@ -36,6 +36,8 @@ def clean(cell: object) -> str | None:
 
 @dataclass(frozen=True)
 class Section:
+    """One table within a sheet that may hold several."""
+
     number: int
     label: str | None
     start: int

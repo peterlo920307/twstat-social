@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from twstat.sampling import cohen_kappa, coding_sheet
+from twstat.sampling import coding_sheet, cohen_kappa
 
 
 @pytest.fixture

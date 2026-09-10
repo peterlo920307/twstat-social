@@ -5,7 +5,9 @@ import pytest
 from twstat.values import Flag, parse
 
 
-@pytest.mark.parametrize("cell, number", [("69", 69.0), ("1,234", 1234.0), ("10 079", 10079.0), (5, 5.0)])
+@pytest.mark.parametrize(
+    "cell, number", [("69", 69.0), ("1,234", 1234.0), ("10 079", 10079.0), (5, 5.0)]
+)
 def test_numbers(cell, number):
     parsed = parse(cell)
     assert parsed.number == number

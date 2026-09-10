@@ -45,6 +45,7 @@ class SectionSpec:
             self.columns[column] = ColumnSpec(column, dim1, existing.dim2 if existing else None)
 
     def set_dim2(self, column: int, dim2: str) -> None:
+        """Record the second dimension for one column."""
         existing = self.columns.get(column)
         self.columns[column] = ColumnSpec(column, existing.dim1 if existing else "", dim2)
 
@@ -53,9 +54,11 @@ class SpecBook:
     """Specifications for a whole corpus, keyed by file and section."""
 
     def __init__(self) -> None:
+        """Start with no specifications."""
         self._sections: dict[tuple[str, int], SectionSpec] = {}
 
     def section(self, file: str, number: int) -> SectionSpec:
+        """Return the specification for one section, creating it if needed."""
         key = (file, number)
         if key not in self._sections:
             self._sections[key] = SectionSpec(file, number)
@@ -78,10 +81,13 @@ class SpecBook:
                 spec.set_dim2(column, label)
 
     def get(self, file: str, section: int) -> SectionSpec | None:
+        """Return a specification, or ``None`` if that section has none."""
         return self._sections.get((file, section))
 
     def files(self) -> set[str]:
+        """Return the file stems that have at least one specified section."""
         return {file for file, _ in self._sections}
 
     def __len__(self) -> int:
+        """Return the number of specified sections."""
         return len(self._sections)

@@ -32,7 +32,7 @@ def test_each_section_has_its_own_header(stacked_sheet):
     frame = pd.read_excel(stacked_sheet, header=None)
     first, second = find(frame)
     first_data, first_headers = header_rows(frame, first)
-    second_data, second_headers = header_rows(frame, second)
+    _, second_headers = header_rows(frame, second)
     assert first_headers and second_headers
     assert max(first_headers) < first_data
     assert min(second_headers) > first_data

@@ -13,7 +13,7 @@ This module supports the second question only.
 from __future__ import annotations
 
 from collections import Counter
-from typing import Sequence
+from collections.abc import Sequence
 
 import pandas as pd
 
@@ -35,10 +35,10 @@ def coding_sheet(
     groups = populated.groupby(["table_id", "section"], sort=True)
     per_group = max(1, size // max(1, groups.ngroups))
 
-    sample = groups.apply(
-        lambda group: group.sample(min(len(group), per_group), random_state=seed),
-        include_groups=False,
-    ).reset_index()
+    drawn = [
+        group.sample(min(len(group), per_group), random_state=seed) for _, group in groups
+    ]
+    sample = pd.concat(drawn, ignore_index=True) if drawn else populated.head(0)
     if len(sample) > size:
         sample = sample.sample(size, random_state=seed)
 
@@ -63,7 +63,7 @@ def cohen_kappa(first: Sequence[str], second: Sequence[str]) -> float:
         raise ValueError("no items to compare")
 
     total = len(first)
-    observed = sum(a == b for a, b in zip(first, second)) / total
+    observed = sum(a == b for a, b in zip(first, second, strict=True)) / total
     left, right = Counter(first), Counter(second)
     expected = sum(
         (left[label] / total) * (right[label] / total) for label in set(left) | set(right)

@@ -13,7 +13,7 @@ from .spec import SpecBook
 from .values import Flag
 from .values import parse as parse_value
 
-__all__ = ["Observation", "extract_file", "extract_corpus", "COLUMNS"]
+__all__ = ["COLUMNS", "Observation", "extract_corpus", "extract_file"]
 
 COLUMNS = [
     "table_id",
