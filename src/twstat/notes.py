@@ -80,7 +80,7 @@ def extract_notes(path: str | Path) -> list[Note]:
             # A note printed at the foot of one part runs straight into the
             # heading of the next when no blank row separates them, and the
             # heading is long enough to pass for a continuation line.
-            if sectioning._MARKER.match(following):
+            if sectioning.is_marker(following):
                 break
             if len(following) < 4:
                 break

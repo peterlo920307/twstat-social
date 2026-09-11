@@ -30,7 +30,7 @@ import pandas as pd
 from .eradate import parse as parse_date
 from .values import parse as parse_value
 
-__all__ = ["Section", "clean", "find", "header_rows", "label_text"]
+__all__ = ["Section", "clean", "find", "header_rows", "is_marker", "label_text"]
 
 # A section marker is a number, a full stop and a label: "1.本省人". The stop is
 # written both as an ASCII period and as the full-width U+FF0E, and the two are
@@ -44,6 +44,15 @@ _MARKER = re.compile(r"^\d+[.．][^\d]")
 # Unassigned private-use characters left by the 2006 digitisation. They render
 # as a missing glyph and carry nothing.
 _PRIVATE_USE = re.compile(r"[\ue000-\uf8ff]")
+
+
+def is_marker(text: str | None) -> bool:
+    """Return ``True`` if ``text`` opens a numbered section, as in ``1.本省人``.
+
+    Callers outside this module used to reach for the pattern itself; this is
+    the supported way to ask.
+    """
+    return bool(text) and bool(_MARKER.match(text or ""))
 
 
 def label_text(section: Section) -> str:

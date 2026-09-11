@@ -28,7 +28,6 @@ ROOT = os.path.dirname(HERE)
 # Use this checkout's package even before `pip install -e .` has been run.
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-# This script also reads the private sections._MARKER; renaming it breaks this.
 from twstat import sections as sectioning  # noqa: E402
 from twstat import values  # noqa: E402
 
@@ -164,7 +163,7 @@ def measure(out):
             for column in range(min(5, frame.shape[1])):
                 text = sectioning.clean(frame.iat[row, column])
                 looks_like_a_marker = text and len(text) < 40 and MARKER.match(text)
-                if looks_like_a_marker and not sectioning._MARKER.match(text):
+                if looks_like_a_marker and not sectioning.is_marker(text):
                     missed_markers[text] += 1
             for column in range(1, frame.shape[1]):
                 text = sectioning.clean(frame.iat[row, column])

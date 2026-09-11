@@ -29,7 +29,6 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # Use this checkout's package even before `pip install -e .` has been run.
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "src"))
 
-# This script also reads the private sections._MARKER; renaming it breaks this.
 from twstat import eradate  # noqa: E402
 from twstat import sections as sectioning  # noqa: E402
 
@@ -265,7 +264,7 @@ def check_own_corpus(raw):
                 cells += 1
                 japanese_hits += bool(japanese.search(text))
             first = sectioning.clean(frame.iat[row, 0])
-            if first and not eradate.is_note(first) and not sectioning._MARKER.match(first):
+            if first and not eradate.is_note(first) and not sectioning.is_marker(first):
                 labels[first] += 1
 
     # A date-like label is short and carries a period marker. Longer strings are
