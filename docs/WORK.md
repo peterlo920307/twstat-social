@@ -100,7 +100,7 @@ Making it public is the author's decision. When it is made, these follow, and
 some have to come first.
 
 **Decide before**
-- [ ] `docs/T46_findings.md` line 12 names two editors and their work email
+- [x] `docs/T46_findings.md` line 12 named two editors and their work email
       addresses, from a note about writing to them. Replacing them with a role
       ("the CRDH editors") takes a minute, but the addresses stay in git history
       from the first commit onward; removing them from history means rewriting it
@@ -119,6 +119,6 @@ some have to come first.
 - [ ] Turn on private vulnerability reporting, which `SECURITY.md` points to.
 - [ ] Turn on Zenodo archiving for the repository; the release workflow does the
       rest (`docs/zenodo_workflow.md`).
-- [ ] Remove "The repository is private for now" from the README's install
+- [x] Remove "The repository is private for now" from the README's install
       section.
 

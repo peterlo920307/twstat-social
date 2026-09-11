@@ -38,7 +38,7 @@ colonial taiwan; historical statistics; education; public health; poor relief; d
 
 ## Repository location
 【TODO】Zenodo DOI —— **必須在投稿前完成存放並取得 DOI，否則直接退稿**
-程式碼：https://github.com/peterlo920307/twstat-social （目前為私人 repo，投稿前須公開）
+程式碼：https://github.com/peterlo920307/twstat-social （公開，MIT）
 
 ## Context
 本資料集為【TODO 大學名稱】數位史學課程之課程作業（coursework）成果。

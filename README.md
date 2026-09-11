@@ -61,8 +61,6 @@ cd twstat-social
 pip install -e ".[dev]"
 ```
 
-The repository is private for now, so the first command only works for someone
-who has been given access.
 
 ## Use
 
