@@ -2,11 +2,18 @@
 字數上限 1,000–1,500（不含 title/affiliation/abstract/圖表/references；含圖表說明與註腳）
 ⚠️ 內文與摘要**不得**取自資料庫既有說明文字，必須改寫。
 
+> **2026-09-11 更新**：本骨架的數字已全部依現行資料重算並可由 repo 重現。
+> 前一版的幾個數字是錯的或無法重現（期間型態計數、91.0% 紀年解析率、78% 表頭自動正確率），
+> 已移除。仍標【TODO】者，都是**必須由作者本人提供或決定**的項目，清單在文末。
+
 ---
 
 ## Title
 Colonial Taiwan Social-Administration Statistics, 1895–1945:
 Education, Health Services, and Poor Relief
+
+【待決定】資料實際涵蓋 **1897–1945**（1895–1896 無任何表）。標題若以殖民統治期命名可保留
+1895，但審查人可能質疑；改為 1897–1945 則需同步改 `.zenodo.json` 與 CODEBOOK 標題。
 
 ## Authors / Affiliations
 【TODO】姓名、系所、通訊作者 email
@@ -15,9 +22,12 @@ Education, Health Services, and Poor Relief
 【TODO】依 CRediT taxonomy（credit.niso.org）逐位標示
 
 ## Abstract（約 100 字）
-【TODO 改寫，不可抄襲來源網站】需涵蓋：資料涵蓋什麼、如何蒐集、如何存放、重用潛力。
-可用素材：50 張表、1897–1945、三個社會行政領域、來源為 1946 年官方統計彙編、
-以 tidy 長格式重製並附逐格出處。
+【TODO 由作者以英文改寫定稿】需涵蓋：資料涵蓋什麼、如何蒐集、如何存放、重用潛力。
+可用素材（皆已驗證）：
+- 48 張表（下載 50 檔，2 張橫斷面表不收錄）、1897–1945、教育／衛生／社會救助三章
+- 來源：1946 年臺灣省行政長官公署統計室所編《臺灣省五十一年來統計提要》，中研院 2006 年數位化
+- 39,150 列 tidy 長格式、30,640 個數值，每列附原始儲存格座標
+- 全部數值逐格回讀核對，0 筆不符
 
 ## Keywords（最多 6，除專名外小寫）
 colonial taiwan; historical statistics; education; public health; poor relief; data rescue
@@ -28,47 +38,72 @@ colonial taiwan; historical statistics; education; public health; poor relief; d
 
 ## Repository location
 【TODO】Zenodo DOI —— **必須在投稿前完成存放並取得 DOI，否則直接退稿**
+程式碼：https://github.com/peterlo920307/twstat-social （目前為私人 repo，投稿前須公開）
 
 ## Context
-本資料集為【大學名稱】數位史學課程之課程作業（coursework）成果。
+本資料集為【TODO 大學名稱】數位史學課程之課程作業（coursework）成果。
 ※ JOHD 模板明文將 course work 列為正當來源，照實寫即可。
-【TODO】若日後用於其他論文，於此列出書目資訊
 
 ---
 
 # (2) Method ← **全篇重心，約 500–600 字**
 
 ## Steps
-- **來源**：《臺灣省五十一年來統計提要》（1894–1945），
-  1946 年臺灣省行政長官公署統計室編；中研院資訊所數位化為 .xls
-  （http://twstudy.iis.sinica.edu.tw/twstatistic50/）
-- **選錄範圍**：24 章中的 3 章 —— 教育（17 表）、衛生醫療保健（16 表）、
-  各宗教及救助（17 表），共 **50 表**。選錄理由見 §4
-- **取得**：2026-09-09 全數下載成功（50/50，1.6 MB），全部可程式化解析
-- **處理**：Python 套件 `twstat`（`eradate` 紀年、`values` 缺值、`sections` 區段、`extract` 長格式、`verify` 全量回讀）
-  【TODO】程式碼 repo 連結
+- **來源**：《臺灣省五十一年來統計提要》，1946 年臺灣省行政長官公署統計室據日治時期
+  1,207 種統計出版物編成；中研院資訊所 2006 年數位化為保留版面的 .xls
+  （https://twstudy.iis.sinica.edu.tw/TwStatistic50/）
+- **選錄範圍**：全書 24 章中的 3 章 —— 教育、衛生、社會救助，共 50 檔。
+  其中表 467、496 為單一時點橫斷面表，本資料集以年份為首的結構無法容納，不收錄；
+  其餘 **48 表全數收錄**。選錄理由見 §4。
+- **欄位含義**：由人工逐區段撰寫欄位規格，共 78 個區段。曾嘗試自動重建表頭，
+  產生「看似合理但錯誤」的標籤（兩個標籤被接成一個、表名被併入欄名），且其檢查方式
+  看不出自己的錯誤，因此放棄（repo: `docs/D12_findings.md`、`docs/DESIGN.md` §4）。
+- **處理**：Python 套件 `twstat`（`eradate` 紀年、`values` 缺值語意、`sections` 區段、
+  `extract` 長格式、`verify` 逐格回讀、`notes` 附註）。原始 .xls 不再散布，
+  以 `scripts/download_raw.py` 依 checksum manifest 下載並核對。
 
 ## Sampling strategy
-非抽樣：所選三章之表格**全數納入**。
-【TODO】驗證用抽樣方案見 §Quality control
+非抽樣：所選三章之表格全數納入。驗證用抽樣見 §Quality control。
 
 ## Quality control
-原始檔的系統性問題（已量化）：
-| 問題 | 影響 |
-|---|---|
-| 缺值以「.」表示（非標準 NA） | 47 / 50 檔 |
-| `└─N─┘` 跨欄合併偽影 | 10 / 50 檔 |
-| 多層中文表頭造成空白儲存格 | 平均 21% |
-| 民國紀年（含民國前）、字間夾空白；全書未見日本年號 | 全部 |
 
-處理與驗證：
-- 紀年正規化：2,440 個標記中自動解出 **2,221（91.0%）**，餘者人工判定
-- **期間型態必須分離**：fiscal_year_end 850／calendar_year 814／
-  year_end 490／fiscal_year 67 —— 逾半數非曆年，合併將產生無聲錯誤
-- 表頭重建自動正確率約 **78%**（字元散置於多欄者需 per-table 覆寫）
-- 每筆保留 `src_row`/`src_col`，可回溯原始儲存格
-- 【TODO】**人工驗證**：抽樣 N 筆比對原表，報告正確率
-- 【TODO】**標註者間一致性**：兩位獨立標註者，報告 Cohen's κ
+**原始檔的系統性問題（皆已量化）**
+| 問題 | 規模 |
+|---|---|
+| 缺值以「.」表示；2006 年數位化時已把原書「－」（未調查）與「…」（不明）合併為「.」，無法還原 | 47 / 50 檔 |
+| 原書 `0` 依〈凡例〉(十一) 表示「不及一單位」，非零；表 491 附註另行規定其 0 為確值零 | 1 格／46 格 |
+| 跨欄合併數值以括弧框線 `└─N─┘` 等十餘種寫法留在儲存格中 | 131 個數值 |
+| 多個表上下堆疊於同一工作表，部分無編號標記 | 12 / 50 檔 |
+| 列標為民國紀年（含民國前），字間夾空白；全書 45,691 格中未見任何日本年號 | 全部 |
+
+**紀年與期間**
+- 98.2% 的年份列標印有括號西元年，直接取用；以年號算術換算交叉檢查，117/117 一致
+- 原書一處西元年誤植（表 504，民國前九年印為 `(1093)`），依前後年份更正為 1903 並記錄依據；
+  凡「看似有年份卻解析不出」的列一律報錯，不靜默略過
+- **期間型態必須分離**：曆年 41%、年度（4 月 1 日至翌年 3 月 31 日）37%、年底 22%。
+  合併為單一曆年序列會產生看似連續、實則錯位最多一年的序列
+
+**數值層：全量核對，非抽樣**
+- 每列保留 `src_row`／`src_col`；`twstat verify` 回讀全部 30,640 個數值與其原始儲存格，
+  **0 筆不符**；缺值列亦核對其座標確實指向無數值的儲存格
+- 結構檢查：無任何（表、區段、年、dim1、dim2）鍵對應兩個不同數值；無任何儲存格被使用兩次；
+  標籤上的註腳編號全部可對應到附註項
+
+**一次重大錯誤及其教訓（建議寫入 Method，這是本資料集可信度的核心論證）**
+發布前的審查發現，三張衛生表在同一工作表內疊了 5–6 組無編號的表頭帶，
+管線只讀第一組，使 2,976 列（當時資料集的 8.1%）掛上錯誤的疾病名稱。
+全量數值核對全程回報 0 錯誤 —— 因為每個數字都對，錯的只有標籤。
+修正後改以「表頭帶」切分區段，並新增結構檢查。另兩張表的「患者／死亡」成對列曾被略過，
+救回 1,895 個死亡數。（repo: `docs/W13_header_bands.md`）
+
+**泛化測試**
+以一橋大學《帝国統計年鑑》目次（33,116 筆表題）與 LTES 測試紀年解析，並以同書其餘 21 章
+599 張未見過的表測試區段與缺值處理（repo: `docs/W05_generalisation.md`、`W06_layout.md`）。
+
+**語意層：尚未完成**
+- 【TODO】**標註者間一致性**：兩位獨立標註者就 234 格（78 區段各 3 格）判讀欄位含義，
+  報告 Cohen's κ，並以雙方共識比對管線標籤得出正確率。編碼表與說明已備：
+  `data/validation_sample.csv`、`docs/CODING_SHEET.md`
 
 ---
 
@@ -78,11 +113,11 @@ colonial taiwan; historical statistics; education; public health; poor relief; d
 |---|---|
 | Repository name | Zenodo |
 | Object name | 【TODO】 |
-| Format names and versions | CSV (UTF-8)、tidy long format；原始 .xls 另存 raw/ |
-| Creation dates | 2026-09-09 – 【TODO】 |
-| **Dataset creators** | 【TODO 作者】＋**須列出中研院資訊所（原數位化者）** |
+| Format names and versions | CSV (UTF-8)：`tidy.csv`（主資料）、`notes.csv`（附註與材料來源 102 條）、`note_items.csv`（附註編號項 93 條）、`validation_sample.csv`（空白編碼表）。原始 .xls **不隨附**，以下載腳本取得 |
+| Creation dates | 2026-09-09 – 【TODO 定稿日】 |
+| **Dataset creators** | 【TODO 作者】；**須列出中研院資訊所（原數位化者）** 與 1946 年臺灣省行政長官公署統計室（原編纂者），`.zenodo.json` 已列為 contributors |
 | Language | 中文（繁體）；欄位名英文 |
-| License | CC BY 4.0（原書為政府公文書；數值為事實） |
+| License | 資料與文件 CC BY 4.0；程式碼 MIT（原書為政府公文書，依著作權法第 9 條不得為著作權標的；數值為事實） |
 | Publication date | 【TODO】 |
 
 ---
@@ -90,20 +125,27 @@ colonial taiwan; historical statistics; education; public health; poor relief; d
 # (4) Reuse Potential（約 300–400 字）
 
 ## 可重用之處
-- 教育、衛生行政、社會救助三領域的長期序列（多數表 40 年以上）
-- 既有的日治統計數值化工作集中於**人口、農業、貿易、價格、財政、土地**
+- 教育、衛生行政、社會救助三領域的長期序列（48 表中 26 表跨 40 年以上）
+- 既有的日治統計數值化集中於**人口、農業、貿易、價格、財政、土地**
   （臺大經濟系吳聰敏／Kelly Olds、一橋大學 ASHSTAT、HMD/HFD、CTHRD），
   **本三領域未被涵蓋** —— 因其非經濟學問題
+- 每列可回溯至原始儲存格；標籤上的註腳編號可程式化連結至附註
 - 可與現代資料銜接（如疾管署傳染病統計）做長時段比較
-- 教學用途：多層表頭、紀年換算、缺值語意皆為實例教材
+- 教學用途：多層表頭、紀年換算、缺值語意、「驗證只找得到它被設計來找的錯」皆為實例
 
 ## 限制與障礙（模板規定必寫）
 - **1895–1896 完全無資料**
-- **1943 年斷崖**：涵蓋表數自 43 降至 15；28/48 表終止於 1942；僅 3 表達 1945
+- **1943 年斷崖**：涵蓋表數自 43 降至 15；48 表中 28 表止於 1942；僅 3 表達 1945。
+  原書〈編製經過〉說明成因為空襲毀損與戰時統計停擺
 - **早期年份（1897–1905）表數由 6 增至 32**，數值上升可能反映統計能力擴張而非現象變化
-- 【TODO】蕃地／原住民地區涵蓋狀況待查
-- 【TODO】1920 年州廳制改制對地理單位可比性的影響待查
-- 本資料集為二手彙編（1946 年接收方所編）之再處理，非原始統計書
+- **原住民**：1921 年以前的學齡人口不含原住民（表 481 附註）；原住民兒童教育由警察系統
+  辦理、與國民學校為不對等的兩套體系（表 479），不可直接合併
+- **紀年已被改寫**：1946 年編纂者將五十年日治統計全數改寫為民國紀年，與日治原始統計書對照時須注意
+- **衍生值**：表 480–482 的 21 個比率欄為 2006 年數位化時以公式算出，非原書印出之數字
+- **縣市層級**被原書系統性排除（〈凡例〉(三)）；軍事與重要工礦資料在日治時期即列機密
+- 【TODO，尚未查證】1920 年州廳制改制對地理單位可比性的影響
+- 本資料集為二手彙編（1946 年接收方所編）之再處理，非日治原始統計書
+- 語意層（欄位含義）尚未經第二位標註者檢核
 
 ---
 
@@ -112,8 +154,10 @@ colonial taiwan; historical statistics; education; public health; poor relief; d
 - Funding statement：【TODO】
 - **Competing interests**：The author(s) has/have no competing interests to declare.
 - References：APA 格式，附 DOI
-- **AI Declaration**（必填）：【TODO】需聲明生成式 AI 用於資料採集腳本、
-  格式轉換與初稿撰寫；**所有人工驗證由作者執行**；作者承擔全部正確性責任
+- **AI Declaration**（必填）：【TODO 由作者撰寫】須如實聲明生成式 AI（Claude）用於：
+  處理程式與測試的撰寫、資料品質審查、文件與本稿的起草。應寫明哪些判斷由作者本人做出，
+  並聲明作者對全部內容的正確性負責。repo 的每個 commit 皆以 `Co-Authored-By` 標記，
+  聲明內容應與此一致。
 - Supplementary Files：【TODO】
 
 ---
@@ -123,3 +167,16 @@ colonial taiwan; historical statistics; education; public health; poor relief; d
 2. 為何適合 JOHD —— 點名先例（如 Modernism's Vector，johd.485，中文語料先例）
 3. **APC waiver 申請理由**（APC £1,070，學生身分）
 4. （可選）建議三位審查人
+
+---
+
+# 仍需作者本人提供或決定的項目
+1. 姓名、系所、email、ORCID（同時用於 `.zenodo.json` 與 `CITATION.cff`）
+2. CRediT 角色
+3. 標題年份（1895 或 1897）
+4. 英文摘要定稿
+5. AI Declaration
+6. Zenodo 存放（取得 DOI）與 repo 公開
+7. 第二位標註者，完成 κ 驗證
+8. 1920 年州廳制改制的影響（需查證，不可推測）
+9. Acknowledgements、Funding、Supplementary Files、Object name、日期
