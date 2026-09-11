@@ -3,6 +3,9 @@
 Recovering usable data from legacy East Asian statistical tables.
 
 [![tests](https://github.com/peterlo920307/twstat-social/actions/workflows/tests.yml/badge.svg)](https://github.com/peterlo920307/twstat-social/actions/workflows/tests.yml)
+[![checks](https://github.com/peterlo920307/twstat-social/actions/workflows/checks.yml/badge.svg)](https://github.com/peterlo920307/twstat-social/actions/workflows/checks.yml)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
+[![Data: CC BY 4.0](https://img.shields.io/badge/data-CC%20BY%204.0-lightgrey.svg)](LICENSE-DATA)
 
 The corpus this was built for is the *Taiwan Province Statistical Abstract for
 the Past Fifty-One Years*, compiled in 1946 from 1,207 Japanese colonial
@@ -43,9 +46,22 @@ and welfare — that is **39,150 rows, 30,640 values, 48 tables,
 
 ## Install
 
+To use it:
+
 ```bash
+pip install git+https://github.com/peterlo920307/twstat-social
+```
+
+To work on it, which is what `CONTRIBUTING.md` assumes:
+
+```bash
+git clone https://github.com/peterlo920307/twstat-social
+cd twstat-social
 pip install -e ".[dev]"
 ```
+
+The repository is private for now, so the first command only works for someone
+who has been given access.
 
 ## Use
 
