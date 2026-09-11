@@ -21,54 +21,101 @@ import os
 import re
 import sys
 import urllib.parse
-import urllib.request
 
+import _fetch  # scripts/_fetch.py
 import pandas as pd
 
-from twstat import eradate
-from twstat import sections as sectioning
+HERE = os.path.dirname(os.path.abspath(__file__))
+# Use this checkout's package even before `pip install -e .` has been run.
+sys.path.insert(0, os.path.join(os.path.dirname(HERE), "src"))
+
+# This script also reads the private sections._MARKER; renaming it breaks this.
+from twstat import eradate  # noqa: E402
+from twstat import sections as sectioning  # noqa: E402
 
 LTES_INDEX = "https://d-infra.ier.hit-u.ac.jp/Japanese/ltes/a000.html"
 YEARBOOK = "https://d-infra.ier.hit-u.ac.jp/Japanese/govstat-database/statistical-yb/"
 YEARBOOK_FILES = ["contents_1882-1911.xlsx", "contents_1912-1940_20210212.xlsx"]
-LTES_VOLUMES = 8
+
+# Volumes 1 to 5 of LTES, in eight workbooks: LTES_01_20221028.xlsx, and
+# LTES_03_01_20230107.xlsx for the first part of volume 3. The index page lists
+# other volumes and other workbooks as well, so the files are picked by name
+# rather than by their position on the page. The date is the issue; the
+# figures in docs/W05_generalisation.md come from issues dated October 2022 to
+# March 2023, and the script prints the names it used.
+LTES_FILE = re.compile(r"LTES_0[1-5](_0[1-9])?_\d{8}\.xlsx")
+LTES_WORKBOOKS = 8
 
 ERA_NAME = re.compile(r"(明治|大正|昭和|平成|令和|民國前|民國|民国)")
 ERA_EXPR = re.compile(r"(明治|大正|昭和)\s*[0-9０-９一二三四五六七八九十元]+\s*年[度末]*")
 ERA_STARTS = {"明治": 1867, "大正": 1911, "昭和": 1925}
 
 
+class MeasurementError(Exception):
+    """A corpus is not in the shape the measurements need."""
+
+
 def fetch(url, dest):
-    """Download ``url`` to ``dest`` unless it is already there."""
-    if os.path.exists(dest) and os.path.getsize(dest) > 0:
-        return dest
-    request = urllib.request.Request(url, headers={"User-Agent": "twstat-social/0.1"})
-    with urllib.request.urlopen(request, timeout=180) as response, open(dest, "wb") as handle:
-        handle.write(response.read())
+    """Download ``url`` to ``dest`` unless a complete copy is already there."""
+    if not _fetch.looks_complete(dest):
+        _fetch.download(url, dest, timeout=180)
     return dest
 
 
 def read(url):
     """Download ``url`` and decode it as text."""
-    request = urllib.request.Request(url, headers={"User-Agent": "twstat-social/0.1"})
-    with urllib.request.urlopen(request, timeout=90) as response:
-        return response.read().decode("utf-8", "replace")
+    return _fetch.get(url, timeout=90).payload.decode("utf-8", "replace")
+
+
+def read_excel(path):
+    """Read the first sheet of a workbook, naming the file if that fails.
+
+    Raises:
+        MeasurementError: The file could not be read.
+    """
+    try:
+        return pd.read_excel(path, header=None)
+    except Exception as error:
+        raise MeasurementError(f"cannot read {path}: {type(error).__name__}: {error}") from error
 
 
 def sheets(path):
-    """Yield every sheet of a workbook as an unheadered frame."""
-    book = pd.ExcelFile(path)
-    for name in book.sheet_names:
-        yield name, book.parse(name, header=None)
+    """Yield every sheet of a workbook as an unheadered frame.
+
+    Raises:
+        MeasurementError: The file could not be read.
+    """
+    try:
+        with pd.ExcelFile(path) as book:
+            for name in book.sheet_names:
+                yield name, book.parse(name, header=None)
+    except Exception as error:
+        raise MeasurementError(f"cannot read {path}: {type(error).__name__}: {error}") from error
 
 
 def check_ltes(out):
-    """Report how many LTES labels carry an era name."""
+    """Report how many LTES labels carry an era name.
+
+    Raises:
+        MeasurementError: The index page does not list exactly eight workbooks
+            for volumes 1 to 5.
+    """
     links = re.findall(r'href="([^"]+\.xlsx?)"', read(LTES_INDEX))
-    paths = []
-    for link in links[:LTES_VOLUMES]:
-        url = urllib.parse.urljoin(LTES_INDEX, link)
-        paths.append(fetch(url, os.path.join(out, os.path.basename(url))))
+    urls = sorted(
+        {
+            urllib.parse.urljoin(LTES_INDEX, link)
+            for link in links
+            if LTES_FILE.fullmatch(os.path.basename(link))
+        }
+    )
+    if len(urls) != LTES_WORKBOOKS:
+        found = ", ".join(os.path.basename(url) for url in urls) or "none"
+        raise MeasurementError(
+            f"expected {LTES_WORKBOOKS} workbooks for LTES volumes 1-5 on {LTES_INDEX},"
+            f" found {len(urls)}: {found}. The page has changed; the figures in"
+            " docs/W05_generalisation.md cannot be reproduced from it as it stands."
+        )
+    paths = [fetch(url, os.path.join(out, os.path.basename(url))) for url in urls]
 
     labels, era_labels, sheet_count = collections.Counter(), collections.Counter(), 0
     for path in paths:
@@ -82,6 +129,7 @@ def check_ltes(out):
                         if ERA_NAME.search(text):
                             era_labels[text] += 1
     print("LTES")
+    print(f"  workbooks {', '.join(os.path.basename(path) for path in paths)}")
     print(f"  volumes {len(paths)}, sheets {sheet_count}")
     print(f"  distinct short labels          {len(labels)}")
     print(f"  labels naming an era           {sum(era_labels.values())}")
@@ -193,7 +241,12 @@ def chinese_numeral(text):
 
 
 def check_own_corpus(raw):
-    """Measure the claims the eradate docstring makes about the 1946 corpus."""
+    """Measure the claims the eradate docstring makes about the 1946 corpus.
+
+    Raises:
+        MeasurementError: ``raw`` has no date-like row labels to measure, or a
+            file in it cannot be read.
+    """
     if not os.path.isdir(raw):
         print(f"\n(skipping the 1946 corpus: {raw} is absent)")
         return
@@ -203,7 +256,7 @@ def check_own_corpus(raw):
     for name in sorted(os.listdir(raw)):
         if not name.lower().endswith((".xls", ".xlsx")):
             continue
-        frame = pd.read_excel(os.path.join(raw, name), header=None)
+        frame = read_excel(os.path.join(raw, name))
         for row in range(len(frame)):
             for column in range(frame.shape[1]):
                 text = sectioning.clean(frame.iat[row, column])
@@ -219,6 +272,11 @@ def check_own_corpus(raw):
     # table titles and footnote text, which are not dated rows.
     datelike = {k: v for k, v in labels.items() if len(k) <= 24 and eradate.parse(k).period}
     total = sum(datelike.values())
+    if not total:
+        raise MeasurementError(
+            f"{raw} has no date-like row labels ({cells} non-blank cells in all);"
+            " it should be the raw/ that scripts/download_raw.py fills"
+        )
     named = sum(v for k, v in datelike.items() if ERA_NAME.search(k))
     printed = sum(v for k, v in datelike.items() if OWN_GREGORIAN.search(k))
 
@@ -247,13 +305,27 @@ def check_own_corpus(raw):
 
 
 def main():
-    """Fetch both corpora and print the measurements."""
+    """Fetch both corpora and print the measurements.
+
+    Each of the three measurements runs even if another fails.
+
+    Returns:
+        0 if all three could be made, otherwise 1.
+    """
+    _fetch.utf8_console()
     out = sys.argv[1] if len(sys.argv) > 1 else "second_corpus"
-    os.makedirs(out, exist_ok=True)
-    check_ltes(out)
-    check_yearbook(out)
-    check_own_corpus(sys.argv[2] if len(sys.argv) > 2 else "raw")
+    raw = sys.argv[2] if len(sys.argv) > 2 else "raw"
+    _fetch.require_writable(out)
+    failed = 0
+    for check, argument in ((check_ltes, out), (check_yearbook, out), (check_own_corpus, raw)):
+        try:
+            check(argument)
+        except (_fetch.FetchError, MeasurementError) as error:
+            failed += 1
+            sys.stdout.flush()
+            print(f"\n{check.__name__} failed: {error}", file=sys.stderr, flush=True)
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
