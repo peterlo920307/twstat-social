@@ -30,7 +30,7 @@ import pandas as pd
 from .eradate import parse as parse_date
 from .values import parse as parse_value
 
-__all__ = ["Section", "clean", "find", "header_rows"]
+__all__ = ["Section", "clean", "find", "header_rows", "label_text"]
 
 # A section marker is a number, a full stop and a label: "1.本省人". The stop is
 # written both as an ASCII period and as the full-width U+FF0E, and the two are
@@ -39,6 +39,21 @@ __all__ = ["Section", "clean", "find", "header_rows"]
 # files it merged two sections into one. None of them is in the three chapters
 # this package was written against, which is why it survived as long as it did.
 _MARKER = re.compile(r"^\d+[.．][^\d]")
+
+
+# Unassigned private-use characters left by the 2006 digitisation. They render
+# as a missing glyph and carry nothing.
+_PRIVATE_USE = re.compile(r"[\ue000-\uf8ff]")
+
+
+def label_text(section: Section) -> str:
+    """Return a section's heading as it should appear in the published files.
+
+    The marker number and its stop are dropped, in either the ASCII or the
+    full-width form, and so is any private-use character. The tidy data and the
+    notes must clean labels the same way, because a reader joins them on it.
+    """
+    return _PRIVATE_USE.sub("", section.label or "").lstrip("0123456789.．").strip()
 
 
 def _grid(frame: pd.DataFrame) -> np.ndarray:

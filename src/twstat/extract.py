@@ -37,10 +37,6 @@ _LOOKS_DATED = re.compile(r"[(（]\s*\d{3,5}\s*[)）]")
 # after the brace is a second dimension of the row, and goes into dim2.
 _STUB = re.compile(r"([┌├└])\s*(\S+)\s*$")
 
-# Unassigned private-use characters left by the 2006 digitisation. They render
-# as a missing glyph and carry nothing.
-_PRIVATE_USE = re.compile(r"[\ue000-\uf8ff]")
-
 __all__ = ["COLUMNS", "Observation", "extract_corpus", "extract_file"]
 
 COLUMNS = [
@@ -116,7 +112,7 @@ def extract_file(path: str | Path, spec: SpecBook, table_id: str | None = None) 
             if headers
             else {}
         )
-        label = _PRIVATE_USE.sub("", section.label or "").lstrip("0123456789.．").strip()
+        label = sectioning.label_text(section)
         carried = None
         for row in range(first, section.end):
             text = grid[row, 0]

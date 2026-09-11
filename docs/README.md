@@ -15,7 +15,7 @@ the documents written for readers of the finished work are in English.
 | | |
 |---|---|
 | [`../README.md`](../README.md) | What the package does, what carries over to another source, and what went wrong |
-| [`CODEBOOK.md`](CODEBOOK.md) | Every column of `data/tidy.csv`, its type, and what its values mean |
+| [`CODEBOOK.md`](CODEBOOK.md) | Every column of `data/tidy.csv`, its type, what its values mean, and how a label's `(1)` leads to its footnote |
 | [`EXAMPLE.md`](EXAMPLE.md) | Fifteen minutes end to end on a sheet you build yourself, including the failure that verification cannot catch |
 | [`DESIGN.md`](DESIGN.md) | Eleven decisions, the alternatives they were chosen over, and what each costs |
 | [`WORK.md`](WORK.md) | What is still open |

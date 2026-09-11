@@ -119,3 +119,16 @@ figures they were discarding.
   `└` row is not given a year. This closes the "Known, not fixed" entry above.
 - `data/tidy.csv`: 36,752 to 39,150 rows, 28,745 to 30,640 values. The shares of
   period types move with it: 41% calendar year, 37% fiscal, 22% year end.
+
+### Added, footnote linkage
+- `twstat.notes.note_items` splits each footnote into its numbered items, and
+  `twstat notes --items` writes them; `data/note_items.csv` is that table, 93
+  items. A label such as `閱覽人數(1)` now resolves to its footnote by
+  `table_id`, `section_label` and marker. Every footnote reference in the
+  dataset resolves, and a test keeps it that way.
+- Notes follow the printed page rather than the table's structure, so the join
+  is on the section heading, not the section number: Mt487-2 prints its only
+  note under the first of five header bands, and it applies to all five.
+- `sections.label_text` is the one place a section heading is cleaned. The
+  notes had kept a private-use character the tidy data had already dropped, so
+  the two files disagreed on two headings and could not be joined on them.

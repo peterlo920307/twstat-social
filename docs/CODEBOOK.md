@@ -92,6 +92,29 @@ v0.4｜自 `twstat` 套件產生（2026-09-11）｜39,150 列、30,640 個數值
 ## 2c. 單位（〈凡例〉(十)）
 貨幣一律臺幣；度量衡折為標準制；特殊情形原書於附註欄註明折合率。
 
+## 2d. 附註：從標籤上的 (1) 找到說明
+標籤常帶原書的註腳編號，例如 `dim2 = 閱覽人數(1)`、`section_label = 民國二十年至三十一年(2)`。
+對應的說明在兩個檔案裡：
+
+- `data/notes.csv`：每條附註或材料來源一列，原文照錄（102 列）
+- `data/note_items.csv`：把附註拆成編號項，每項一列（93 列），欄位
+  `table_id`、`section_label`、`marker`、`text`、`src_row`
+
+**連結鍵是 `table_id` + `section_label` + 編號**，不是區段編號。
+附註依印刷頁擺放，不依表的結構：表 487-2 唯一的附註印在五個表頭帶中第一個的下方，
+但適用於全部五個；它們共用同一個區段標題，所以用標題連結才對得上。
+
+```python
+import re, pandas as pd
+tidy = pd.read_csv("data/tidy.csv")
+items = pd.read_csv("data/note_items.csv")
+tidy["marker"] = tidy["dim2"].str.extract(r"[(（](\d{1,2})[)）]")[0].astype("Int64")
+linked = tidy.merge(items, on=["table_id", "section_label", "marker"], how="left")
+```
+
+資料集中所有標籤上的編號（57 個不同標籤）**都能對到說明**，由
+`tests/test_published_data.py` 檢查。
+
 ## 3. 表清單（實測年份覆蓋）
 
 下載的 50 個檔案中，**表 467（最近本省教育概況）與表 496（本省自來水道概況）不在資料集內**。

@@ -137,3 +137,25 @@ def test_the_codebook_flag_counts_are_the_data(tidy):
     for flag in ("missing", "less_than_one_unit", "bracket_artifact"):
         assert int(counts[flag].replace(",", "")) == actual.get(flag, 0), flag
     assert blank and int(blank.group(1).replace(",", "")) == int(tidy["flag"].isna().sum())
+
+
+def test_every_footnote_reference_in_a_label_resolves_to_a_note_item(tidy):
+    # A label such as 閱覽人數(1) points at item 1 of a note to the same table
+    # under the same heading. Every one of them has to lead somewhere, or the
+    # dataset carries pointers into notes it does not have.
+    import re
+
+    items = pd.read_csv(DATA / "note_items.csv")
+    known = set(
+        zip(items["table_id"], items["section_label"].fillna(""), items["marker"], strict=True)
+    )
+    marker = re.compile(r"[(（](\d{1,2})[)）]")
+    unresolved = set()
+    for column in ["dim1", "dim2", "section_label"]:
+        pairs = tidy[["table_id", "section_label", column]].dropna(subset=[column])
+        for table_id, label, text in pairs.drop_duplicates().itertuples(index=False):
+            label = label if isinstance(label, str) else ""
+            for number in marker.findall(text):
+                if (table_id, label, int(number)) not in known:
+                    unresolved.add((table_id, label, text))
+    assert unresolved == set()

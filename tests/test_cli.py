@@ -231,3 +231,14 @@ def test_notes_writes_every_note_of_every_file(annotated_sheet, flat_sheet, tmp_
         ["Test_Mt998", "Mt998", 1, "", 6, "source", "材料來源:測試用"],
     ]
     assert capsys.readouterr().out == f"{destination}: 4 notes from 2 files\n"
+
+
+def test_notes_can_also_write_the_numbered_items(annotated_sheet, tmp_path, capsys):
+    destination = tmp_path / "notes.csv"
+    items = tmp_path / "items.csv"
+    assert (
+        main(["notes", str(annotated_sheet.parent), str(destination), "--items", str(items)]) == 0
+    )
+    written = pd.read_csv(items)
+    assert written["marker"].tolist() == [1]
+    assert "1 numbered items" in capsys.readouterr().out

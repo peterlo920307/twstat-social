@@ -20,7 +20,7 @@ import pandas as pd
 
 from . import sections as sectioning
 
-__all__ = ["Note", "extract_notes"]
+__all__ = ["ITEM_COLUMNS", "Note", "extract_notes", "note_items"]
 
 _HEAD = re.compile(r"^\s*(附\s*註|註|材料\s*來源|資料\s*來源|說\s*明|備\s*註|按)\s*[:：(（]?")
 _SOURCE = re.compile(r"^\s*(材料\s*來源|資料\s*來源)")
@@ -56,7 +56,7 @@ def extract_notes(path: str | Path) -> list[Note]:
     def locate(row: int) -> tuple[int, str]:
         for section in sections:
             if section.start <= row < section.end:
-                return section.number, (section.label or "")
+                return section.number, sectioning.label_text(section)
         return 1, ""
 
     notes: list[Note] = []
@@ -93,9 +93,7 @@ def extract_notes(path: str | Path) -> list[Note]:
                 file=stem,
                 table_id=stem.split("_")[-1],
                 section=number,
-                # Both stops the marker pattern accepts, the full-width U+FF0E
-                # included; stripping only the ASCII one left "．官等".
-                section_label=label.lstrip("0123456789.．"),
+                section_label=label,
                 src_row=row + 1,
                 kind=_kind(head),
                 text="".join(parts),
@@ -103,3 +101,47 @@ def extract_notes(path: str | Path) -> list[Note]:
         )
         row = cursor
     return notes
+
+
+# A numbered item inside a note: "(1)", "（2）". One or two digits only, so a
+# Gregorian year in brackets, "(1931)", is not read as a marker.
+_ITEM = re.compile(r"[(（](\d{1,2})[)）]")
+ITEM_COLUMNS = ["table_id", "section_label", "marker", "text", "src_row"]
+
+
+def note_items(notes: pd.DataFrame) -> pd.DataFrame:
+    """Split each footnote into its numbered items, one row per item.
+
+    A label in the tidy data such as ``閱覽人數(1)`` points at item 1 of a note
+    to the same table, and this is the table that pointer resolves against. Join
+    on ``table_id``, ``section_label`` and ``marker``.
+
+    ``section_label`` rather than the section number, because notes follow the
+    printed page and not the table's structure. Mt487-2 prints its only note at
+    the foot of the first of five header bands, and the note applies to all five;
+    the bands share a heading, so they share its notes.
+    """
+    rows: list[dict[str, object]] = []
+    for table_id, label, kind, text, src_row in zip(
+        notes["table_id"],
+        notes["section_label"],
+        notes["kind"],
+        notes["text"],
+        notes["src_row"],
+        strict=True,
+    ):
+        if kind != "note":
+            continue
+        marks = list(_ITEM.finditer(text))
+        for index, mark in enumerate(marks):
+            end = marks[index + 1].start() if index + 1 < len(marks) else len(text)
+            rows.append(
+                {
+                    "table_id": table_id,
+                    "section_label": label if isinstance(label, str) else "",
+                    "marker": int(mark.group(1)),
+                    "text": text[mark.end() : end].strip(),
+                    "src_row": src_row,
+                }
+            )
+    return pd.DataFrame(rows, columns=ITEM_COLUMNS)

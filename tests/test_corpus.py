@@ -102,3 +102,11 @@ def test_the_committed_notes_are_what_the_package_produces(raw_dir, tmp_path):
     produced = tmp_path / "notes.csv"
     assert main(["notes", str(raw_dir), str(produced)]) == 0
     assert pd.read_csv(produced).equals(pd.read_csv(DATA / "notes.csv"))
+
+    from twstat.notes import note_items
+
+    # Through a CSV the same way the committed file went, so that an empty
+    # label compares as the NaN it becomes on the way back in.
+    items_path = tmp_path / "note_items.csv"
+    note_items(pd.read_csv(produced)).to_csv(items_path, index=False, encoding="utf-8-sig")
+    assert pd.read_csv(items_path).equals(pd.read_csv(DATA / "note_items.csv"))

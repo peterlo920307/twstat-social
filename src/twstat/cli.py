@@ -28,6 +28,11 @@ def main(argv: list[str] | None = None) -> int:
     notes = sub.add_parser("notes", help="extract the compilers' footnotes")
     notes.add_argument("raw", type=Path)
     notes.add_argument("output", type=Path)
+    notes.add_argument(
+        "--items",
+        type=Path,
+        help="also write each note's numbered items, the table a label's (1) resolves against",
+    )
 
     sample = sub.add_parser("sample", help="draw a blank coding sheet for a human coder")
     sample.add_argument("tidy", type=Path, help="the extracted CSV")
@@ -46,7 +51,7 @@ def main(argv: list[str] | None = None) -> int:
 
     from .corpus1946 import build as build_specs
     from .extract import SPREADSHEET_SUFFIXES, extract_corpus
-    from .notes import extract_notes
+    from .notes import extract_notes, note_items
     from .sampling import coding_sheet
     from .verify import verify
 
@@ -93,6 +98,10 @@ def main(argv: list[str] | None = None) -> int:
     rows = [note for path in paths for note in extract_notes(path)]
     pd.DataFrame(rows).to_csv(args.output, index=False, encoding="utf-8-sig")
     print(f"{args.output}: {len(rows)} notes from {len({r.file for r in rows})} files")
+    if args.items:
+        items = note_items(pd.read_csv(args.output))
+        items.to_csv(args.items, index=False, encoding="utf-8-sig")
+        print(f"{args.items}: {len(items)} numbered items")
     return 0
 
 

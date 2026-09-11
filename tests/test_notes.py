@@ -144,3 +144,32 @@ def test_section_label_is_clean_with_either_full_stop(tmp_path, stop):
     ]
     notes = extract_notes(_write(tmp_path, rows, "Test_Mt995.xlsx"))
     assert [(note.section, note.section_label) for note in notes] == [(1, "官等"), (2, "性別")]
+
+
+def test_a_note_splits_into_its_numbered_items():
+    from twstat.notes import note_items
+
+    notes = pd.DataFrame(
+        [
+            {
+                "table_id": "Mt900",
+                "section_label": "本省人",
+                "kind": "note",
+                "text": "附註:(1)第一項說明.(2)民國二十年(1931)起改制.",
+                "src_row": 9,
+            },
+            {
+                "table_id": "Mt900",
+                "section_label": "本省人",
+                "kind": "source",
+                "text": "材料來源:(1)某統計書",
+                "src_row": 10,
+            },
+        ]
+    )
+    items = note_items(notes)
+    # A bracketed year is not a marker, and a source attribution has no items.
+    assert items[["marker", "text"]].values.tolist() == [
+        [1, "第一項說明."],
+        [2, "民國二十年(1931)起改制."],
+    ]
