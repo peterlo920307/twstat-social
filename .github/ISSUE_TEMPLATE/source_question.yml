@@ -1,0 +1,20 @@
+name: A question about the source or what the data can support
+description: How a table was compiled, what a category means, whether a series can be compared across years.
+labels: ["source"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before asking, `docs/bias_statement.md` records what is already known about the
+        source's limits, and `docs/CODEBOOK.md` defines every column and flag.
+  - type: input
+    id: tables
+    attributes:
+      label: Tables concerned
+      placeholder: Mt481, Mt507
+  - type: textarea
+    id: question
+    attributes:
+      label: The question
+    validations:
+      required: true

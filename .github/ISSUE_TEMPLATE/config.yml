@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: What the data cannot support
+    url: https://github.com/peterlo920307/twstat-social/blob/main/docs/bias_statement.md
+    about: Known gaps and limits of the source, checked before asking about them.
+  - name: Codebook
+    url: https://github.com/peterlo920307/twstat-social/blob/main/docs/CODEBOOK.md
+    about: Every column and flag in data/tidy.csv.

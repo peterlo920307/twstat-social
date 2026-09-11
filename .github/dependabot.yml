@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+  # pandas and the Excel readers decide how every cell is read. A bump is a
+  # change to the data's inputs, so it arrives as a pull request to be checked
+  # with the full suite and `twstat verify`, not merged on a green CI badge.
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3

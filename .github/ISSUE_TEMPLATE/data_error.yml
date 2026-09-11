@@ -1,0 +1,57 @@
+name: A figure or label disagrees with the source
+description: Report a value, flag or label in data/ that does not match the source table.
+title: "Data: <table_id> row <src_row> column <src_col>"
+labels: ["data error"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every row of `data/tidy.csv` names the cell it came from, so a report that gives
+        `table_id`, `src_row` and `src_col` can be checked in a minute. Numbers are
+        verified against their cells automatically; labels (`dim1`, `dim2`) are not, so
+        a wrong label is the more likely thing to have found.
+  - type: input
+    id: table_id
+    attributes:
+      label: table_id
+      placeholder: Mt488
+    validations:
+      required: true
+  - type: input
+    id: cell
+    attributes:
+      label: src_row and src_col
+      description: One-based, as in the CSV. Several cells are fine, one per line or as a range.
+      placeholder: "62, 4"
+    validations:
+      required: true
+  - type: dropdown
+    id: what
+    attributes:
+      label: What is wrong
+      options:
+        - The label (dim1 or dim2) does not name what the table prints above the figure
+        - The year or reporting period is wrong
+        - The value differs from the cell
+        - The flag is wrong (missing, blank, covered, bracket_artifact, less_than_one_unit)
+        - A figure in the source is not in the data at all
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: says
+    attributes:
+      label: What the dataset says, and what the source says
+      description: Copy the row from tidy.csv, and describe or quote what you see in the source.
+    validations:
+      required: true
+  - type: dropdown
+    id: checked
+    attributes:
+      label: What you checked against
+      options:
+        - The digitised spreadsheet in raw/ (from scripts/download_raw.py)
+        - The printed 1946 compendium
+        - Both
+    validations:
+      required: true

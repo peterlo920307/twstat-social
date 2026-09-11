@@ -41,7 +41,15 @@ of where it breaks on other sources are welcome, with a sample.
 
 ## Reporting problems
 
-Open an issue with the file, section and column, what the source shows, and what
-the code produced. For questions about the data rather than the code, the
-codebook (`docs/CODEBOOK.md`) and the statement of what the data cannot support
-(`docs/bias_statement.md`) may already answer them.
+Use the issue forms: one for a figure or label that disagrees with the source,
+which asks for the `table_id`, `src_row` and `src_col` that let it be checked, one
+for code that does not work, and one for questions about the source. For
+questions about the data rather than the code, the codebook (`docs/CODEBOOK.md`)
+and the statement of what the data cannot support (`docs/bias_statement.md`) may
+already answer them.
+
+A pull request fills in a short checklist; the one item people forget is
+regenerating `data/` when a change moves what is extracted.
+
+Conduct is covered by `CODE_OF_CONDUCT.md`, and anything that looks like a
+security problem by `SECURITY.md` rather than a public issue.

@@ -232,14 +232,31 @@ The work is set up and waiting for someone to do it.
 sheet — 234 cells, three from each of the 78 sections, all 48 tables — and
 [`docs/CODING_SHEET.md`](docs/CODING_SHEET.md) is everything a second coder needs
 in one page: the rules agreed in advance, how to fill it in, and how to compute
-Cohen's kappa afterwards. Two to three hours.
+Cohen's kappa afterwards. About three hours.
+
+## Found something wrong?
+
+Every row names the cell it came from, so a report that gives `table_id`,
+`src_row` and `src_col` can be checked against the source in a minute. There is
+an issue form for exactly that — [a figure or label disagrees with the
+source](https://github.com/peterlo920307/twstat-social/issues/new?template=data_error.yml) — and one each for [code that
+does not work](https://github.com/peterlo920307/twstat-social/issues/new?template=code_bug.yml) and [questions about the
+source](https://github.com/peterlo920307/twstat-social/issues/new?template=source_question.yml). A wrong label is more
+likely than a wrong number, because the numbers are checked by machine and the
+labels are not yet checked by anyone but their author.
+
+## Citing
+
+GitHub's "Cite this repository" button reads [`CITATION.cff`](CITATION.cff). Please
+cite the digitisation by Academia Sinica as well: the figures are theirs to have
+typed, and the compendium is the compilers' before that.
 
 ## Source and licensing
 
 *Taiwan Province Statistical Abstract for the Past Fifty-One Years* (1894–1945),
 compiled 1946 by the Statistical Office of the Taiwan Provincial Administrative
 Executive Office. Digitised by the Institute of Information Science, Academia
-Sinica: <http://twstudy.iis.sinica.edu.tw/twstatistic50/>.
+Sinica: <https://twstudy.iis.sinica.edu.tw/TwStatistic50/>.
 
 The compendium is a government document and under Article 9 of the Copyright Act
 of the Republic of China is not subject to copyright; the figures are facts. The

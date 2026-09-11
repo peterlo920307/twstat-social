@@ -1,0 +1,30 @@
+name: Something in the code does not work
+description: A command fails, gives the wrong result, or a script cannot reproduce what the documentation says.
+labels: ["code"]
+body:
+  - type: textarea
+    id: command
+    attributes:
+      label: What you ran
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and what happened instead
+      description: Include the full error message if there was one.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versions
+      description: Output of `python -c "import twstat, pandas, sys; print(twstat.__version__, pandas.__version__, sys.version)"`
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: Windows 11, macOS 14, Ubuntu 24.04
