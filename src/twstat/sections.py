@@ -24,6 +24,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+import numpy as np
 import pandas as pd
 
 from .eradate import parse as parse_date
@@ -38,6 +39,16 @@ __all__ = ["Section", "clean", "find", "header_rows"]
 # files it merged two sections into one. None of them is in the three chapters
 # this package was written against, which is why it survived as long as it did.
 _MARKER = re.compile(r"^\d+[.．][^\d]")
+
+
+def _grid(frame: pd.DataFrame) -> np.ndarray:
+    """Return the sheet as a plain object array for cell-by-cell reading.
+
+    ``DataFrame.iat`` builds a pandas object for every cell it returns, which
+    costs about seventy times as much as indexing the array and was the largest
+    single cost of an extraction.
+    """
+    return frame.to_numpy(dtype=object)
 
 
 def clean(cell: object) -> str | None:
@@ -59,15 +70,15 @@ class Section:
     """Row range, zero-based and half-open."""
 
 
-def _is_header_band(frame: pd.DataFrame, row: int) -> bool:
+def _is_header_band(grid: np.ndarray, row: int) -> bool:
     """Return ``True`` if this row reads as column headings rather than data.
 
     Two or more cells right of the label column that hold text no number can be
     read out of. One such cell is a unit note or a stray mark; two is a heading.
     """
     found = 0
-    for column in range(1, frame.shape[1]):
-        text = clean(frame.iat[row, column])
+    for column in range(1, grid.shape[1]):
+        text = clean(grid[row, column])
         if not text:
             continue
         value = parse_value(text)
@@ -78,7 +89,7 @@ def _is_header_band(frame: pd.DataFrame, row: int) -> bool:
     return False
 
 
-def _band_starts(frame: pd.DataFrame, start: int, end: int) -> list[int]:
+def _band_starts(grid: np.ndarray, start: int, end: int) -> list[int]:
     """Rows within ``start:end`` where a fresh header band begins after data.
 
     The band above the first data row is the section's own header and is not
@@ -88,12 +99,12 @@ def _band_starts(frame: pd.DataFrame, start: int, end: int) -> list[int]:
     seen_data = False
     pending: int | None = None
     for row in range(start, end):
-        if parse_date(frame.iat[row, 0]).year is not None:
+        if parse_date(grid[row, 0]).year is not None:
             if pending is not None and seen_data:
                 starts.append(pending)
             pending, seen_data = None, True
             continue
-        if pending is None and _is_header_band(frame, row):
+        if pending is None and _is_header_band(grid, row):
             pending = row
     return starts
 
@@ -109,10 +120,11 @@ def find(frame: pd.DataFrame, scan_columns: int = 5) -> list[Section]:
 
     A sheet with neither is returned as a single section covering the frame.
     """
+    grid = _grid(frame)
     marks: list[tuple[int, str | None]] = []
     for row in range(len(frame)):
-        for column in range(min(scan_columns, frame.shape[1])):
-            text = clean(frame.iat[row, column])
+        for column in range(min(scan_columns, grid.shape[1])):
+            text = clean(grid[row, column])
             if text and _MARKER.match(text) and len(text) < 40:
                 marks.append((row, text))
                 break
@@ -124,7 +136,7 @@ def find(frame: pd.DataFrame, scan_columns: int = 5) -> list[Section]:
         end = marks[index + 1][0] if index + 1 < len(marks) else len(frame)
         bounds.append((row, label))
         # A continuation band keeps the heading it was printed under.
-        bounds.extend((band, label) for band in _band_starts(frame, row, end))
+        bounds.extend((band, label) for band in _band_starts(grid, row, end))
 
     sections = []
     for index, (row, label) in enumerate(bounds):
@@ -139,9 +151,10 @@ def header_rows(frame: pd.DataFrame, section: Section) -> tuple[int | None, list
     Returns ``(None, [])`` for a section with no dated rows, which in this corpus
     means a cross-sectional snapshot rather than a time series.
     """
+    grid = _grid(frame)
     first = None
     for row in range(section.start, section.end):
-        if parse_date(frame.iat[row, 0]).year is not None:
+        if parse_date(grid[row, 0]).year is not None:
             first = row
             break
     if first is None:
@@ -150,12 +163,12 @@ def header_rows(frame: pd.DataFrame, section: Section) -> tuple[int | None, list
     headers = [
         row
         for row in range(section.start, first)
-        if any(clean(frame.iat[row, column]) for column in range(1, frame.shape[1]))
+        if any(clean(grid[row, column]) for column in range(1, grid.shape[1]))
     ]
     headers = [
         row
         for row in headers
-        if not (clean(frame.iat[row, 0]) or "").startswith("表")
-        and not _MARKER.match(clean(frame.iat[row, 0]) or "")
+        if not (clean(grid[row, 0]) or "").startswith("表")
+        and not _MARKER.match(clean(grid[row, 0]) or "")
     ]
     return first, headers

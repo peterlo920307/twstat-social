@@ -87,6 +87,7 @@ def extract_file(path: str | Path, spec: SpecBook, table_id: str | None = None) 
     stem = path.stem
     table_id = table_id or stem.split("_")[-1]
     frame = pd.read_excel(path, header=None)
+    grid = frame.to_numpy(dtype=object)
 
     rows: list[Observation] = []
     for section in sectioning.find(frame):
@@ -101,7 +102,7 @@ def extract_file(path: str | Path, spec: SpecBook, table_id: str | None = None) 
         # carries overrides for the cases where that row is itself fragmented.
         bottom = (
             {
-                column + 1: sectioning.clean(frame.iat[headers[-1], column])
+                column + 1: sectioning.clean(grid[headers[-1], column])
                 for column in range(frame.shape[1])
             }
             if headers
@@ -110,7 +111,7 @@ def extract_file(path: str | Path, spec: SpecBook, table_id: str | None = None) 
         label = _PRIVATE_USE.sub("", section.label or "").lstrip("0123456789.．").strip()
         carried = None
         for row in range(first, section.end):
-            text = frame.iat[row, 0]
+            text = grid[row, 0]
             date = parse_date(text)
             corrected = spec.corrected_year(stem, row + 1)
             if corrected is not None:
@@ -138,7 +139,7 @@ def extract_file(path: str | Path, spec: SpecBook, table_id: str | None = None) 
                 index = column - 1
                 if index >= frame.shape[1]:
                     continue
-                value = parse_value(frame.iat[row, index])
+                value = parse_value(grid[row, index])
                 if value.flag is Flag.LESS_THAN_ONE_UNIT and section_spec.zero_is_exact:
                     value = Value(0.0, None, value.raw)
                 if value.number is None and value.flag in (None, Flag.NON_NUMERIC):
