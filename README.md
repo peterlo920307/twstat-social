@@ -36,7 +36,8 @@ Mt468     1        1899  fiscal_year_end  專門學校  校數    1.0   NaN     
 Mt468     1        1899  fiscal_year_end  專門學校  教員數   10.0  NaN      7        6
 ```
 
-One row per observation, carrying the cell it was read from. That last part is
+One row per observation, carrying the cell it was read from (`section_label` is
+left out here for width; `docs/CODEBOOK.md` lists all eleven columns). That last part is
 what makes the result checkable: every number can be read back from the source
 and compared, so the claim is a complete check rather than an accuracy estimate.
 
