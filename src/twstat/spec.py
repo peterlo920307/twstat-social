@@ -38,6 +38,10 @@ class SectionSpec:
     file: str
     section: int
     columns: dict[int, ColumnSpec] = field(default_factory=dict)
+    zero_is_exact: bool = False
+    """Clause 11 of the compilers' notes says a printed 0 means a quantity below
+    one unit, and that is the default. A table may say otherwise in its own
+    footnote, and then its footnote wins."""
 
     def add_range(self, start: int, end: int, dim1: str) -> None:
         """Assign ``dim1`` to every column from ``start`` to ``end`` inclusive."""
@@ -57,6 +61,7 @@ class SpecBook:
     def __init__(self) -> None:
         """Start with no specifications."""
         self._sections: dict[tuple[str, int], SectionSpec] = {}
+        self._years: dict[tuple[str, int], tuple[int, str]] = {}
 
     def section(self, file: str, number: int) -> SectionSpec:
         """Return the specification for one section, creating it if needed."""
@@ -80,6 +85,24 @@ class SpecBook:
                 spec.add_range(start, end, dim1)
             for column, label in (dim2 or {}).items():
                 spec.set_dim2(column, label)
+
+    def zero_is_exact(self, file: str, section: int) -> None:
+        """Record that a printed 0 in this section means an exact zero."""
+        self.section(file, section).zero_is_exact = True
+
+    def correct_year(self, file: str, row: int, year: int, reason: str) -> None:
+        """Record a Gregorian year the source printed wrongly.
+
+        ``row`` is the one-based spreadsheet row. The correction is applied
+        only to that row's label, and ``reason`` should say how the right year
+        is known, so that anyone reading the specification can check it.
+        """
+        self._years[(file, row)] = (year, reason)
+
+    def corrected_year(self, file: str, row: int) -> int | None:
+        """Return the corrected year for a row, or ``None`` if there is none."""
+        found = self._years.get((file, row))
+        return found[0] if found else None
 
     def get(self, file: str, section: int) -> SectionSpec | None:
         """Return a specification, or ``None`` if that section has none."""

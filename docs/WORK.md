@@ -40,12 +40,12 @@ What they found that is fixed is in the changelog; this is what is not.
       suite caught twelve. 99% line coverage, and `verify`'s 1e-9 tolerance,
       `header_rows`' title filter and every heuristic in `extract_notes` are
       unasserted. Coverage was measuring the wrong thing.
-- [ ] R04 **`Welfare_Mt504` loses a whole year to a source typo.** The compendium
+- [x] R04 **`Welfare_Mt504` loses a whole year to a source typo.** The compendium
       prints 民國前九年's Gregorian gloss as `(1093)` for 1903. The year fails to
       parse and the row is skipped in silence — the one internal coverage hole in
       the corpus. Needs an errata entry and a refusal to skip a stub that looks
       dated.
-- [ ] R05 **`less_than_one_unit` is probably wrong for 46 of its 47 cells.**
+- [x] R05 **`less_than_one_unit` is probably wrong for 46 of its 47 cells.**
       Clause 11 says a printed `0` means below one unit, but Mt491's own footnote
       says its `0` means "there were patients but no deaths" — an exact zero. The
       flag needs to be settable per table.

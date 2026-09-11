@@ -10,7 +10,7 @@ Several were made twice, because the first version was wrong; those are marked.
 alternative is a tidy table with no provenance, which is what most published
 historical datasets are.
 
-The cost is real: the two columns are 7.4% of the file, and 36,735 rows of
+The cost is real: the two columns are 7.4% of the file, and 36,752 rows of
 eleven columns is 2.8 MB.
 
 They buy the one claim here that can be checked in full. `twstat verify`

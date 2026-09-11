@@ -30,8 +30,15 @@ def test_a_flagged_zero_is_never_a_plain_zero(tidy):
     # The compilers' printed 0 means a quantity below one unit. It is stored as
     # 0.0, so the flag is the only thing separating it from a true zero.
     below = tidy[tidy["flag"] == Flag.LESS_THAN_ONE_UNIT.value]
-    assert len(below) == 47
+    assert len(below) == 1
     assert (below["value"] == 0.0).all()
+
+
+def test_table_491_zeros_are_exact(tidy):
+    # Its own footnote overrides clause 11: a 0 there means cases and no deaths.
+    zeros = tidy[(tidy["table_id"] == "Mt491") & (tidy["value"] == 0.0)]
+    assert len(zeros) == 46
+    assert zeros["flag"].isna().all()
 
 
 def test_missing_values_carry_no_number(tidy):

@@ -94,3 +94,18 @@ figures they were discarding.
   the first carries a year. The second is skipped and **about 1,900 figures are
   discarded**. The surviving rows are case counts and the schema does not say so.
   Recorded in `docs/bias_statement.md` B7.
+
+### Fixed, source corrections
+- `Welfare_Mt504` printed 民國前九年 as `(1093)`. The row gave no year and was
+  skipped in silence, which is the whole of what `bias_statement.md` used to
+  describe as the dataset's one internal coverage gap. `SpecBook.correct_year`
+  records it as 1903, with the evidence, and the extractor now refuses any row
+  label that looks dated but yields no year rather than skipping it. There are
+  no internal year gaps left.
+- Table 491 is a death rate, and its own footnote says a printed 0 means cases
+  and no deaths. Its 46 zeros were flagged `less_than_one_unit` under the
+  compilers' general legend; they are exact zeros, and
+  `SpecBook.zero_is_exact` records that the footnote overrides the legend.
+  `less_than_one_unit` now marks one cell, in Mt502.
+- Section labels had a private-use character left by the 2006 digitisation,
+  and a full-width marker stop was not stripped from them.

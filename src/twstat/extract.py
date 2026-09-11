@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+import re
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 
 import pandas as pd
@@ -10,8 +11,18 @@ import pandas as pd
 from . import sections as sectioning
 from .eradate import parse as parse_date
 from .spec import SpecBook
-from .values import Flag
+from .values import Flag, Value
 from .values import parse as parse_value
+
+# A row label carrying a bracketed number and a period word is meant to be a
+# dated row. If no year can be read from it, the source has a misprint and the
+# row must not be skipped in silence: Welfare_Mt504 lost its 1903 row that way,
+# printed as (1093). Correct it with SpecBook.correct_year, or fix the parser.
+_LOOKS_DATED = re.compile(r"[(（]\s*\d{3,5}\s*[)）]")
+
+# Unassigned private-use characters left by the 2006 digitisation. They render
+# as a missing glyph and carry nothing.
+_PRIVATE_USE = re.compile(r"[\ue000-\uf8ff]")
 
 __all__ = ["COLUMNS", "Observation", "extract_corpus", "extract_file"]
 
@@ -80,16 +91,27 @@ def extract_file(path: str | Path, spec: SpecBook, table_id: str | None = None) 
             if headers
             else {}
         )
-        label = (section.label or "").lstrip("0123456789.")
+        label = _PRIVATE_USE.sub("", section.label or "").lstrip("0123456789.．").strip()
         for row in range(first, section.end):
             date = parse_date(frame.iat[row, 0])
+            corrected = spec.corrected_year(stem, row + 1)
+            if corrected is not None:
+                date = replace(date, year=corrected)
             if date.year is None:
+                text = str(frame.iat[row, 0])
+                if date.period is not None and _LOOKS_DATED.search(text):
+                    raise ValueError(
+                        f"{stem} row {row + 1}: {text.strip()!r} looks dated but gives "
+                        "no year; record the right one with SpecBook.correct_year"
+                    )
                 continue
             for column, column_spec in section_spec.columns.items():
                 index = column - 1
                 if index >= frame.shape[1]:
                     continue
                 value = parse_value(frame.iat[row, index])
+                if value.flag is Flag.LESS_THAN_ONE_UNIT and section_spec.zero_is_exact:
+                    value = Value(0.0, None, value.raw)
                 if value.number is None and value.flag in (None, Flag.NON_NUMERIC):
                     # Stray text in a numeric column is not an observation.
                     continue

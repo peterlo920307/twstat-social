@@ -2074,4 +2074,17 @@ def build() -> SpecBook:
         },
     )
 
+    # Corrections to the source, each with the evidence for it.
+    book.correct_year(
+        "Welfare_Mt504",
+        11,
+        1903,
+        "printed (1093) beside 民國前九年; 1912 - 9 = 1903, and the rows either side "
+        "are 1902 and 1904",
+    )
+    # Table 491 is a death rate. Its own footnote (1) at row 52 says 「記有「０」號
+    # 之各欄表示有患者而無死亡者」: a 0 means there were cases and no deaths, so
+    # the rate is exactly zero rather than below one unit.
+    book.zero_is_exact("Hygiene_Mt491", 1)
+
     return book
