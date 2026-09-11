@@ -125,9 +125,11 @@ arithmetic, and the documentation now tells them it is safe to.
 
 ## 7. Ambiguous cells are flagged, not dropped
 
-`missing`, `less_than_one_unit`, `bracket_artifact`, `non_numeric`. A cell that
-cannot be read as a number keeps its row and its provenance rather than
-disappearing.
+`missing`, `blank`, `covered`, `less_than_one_unit`, `bracket_artifact`,
+`non_numeric`. A cell that cannot be read as a number keeps its row and its
+provenance rather than disappearing, and its flag says what evidence stands in
+for the number: the compilers' dot, nothing printed at all, or a figure to the
+left that spans it.
 
 The alternative is a clean file of numbers. The objection to it is that a reader
 cannot tell the difference between a figure that was never collected and one that

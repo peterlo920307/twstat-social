@@ -132,3 +132,15 @@ figures they were discarding.
 - `sections.label_text` is the one place a section heading is cleaned. The
   notes had kept a private-use character the tidy data had already dropped, so
   the two files disagreed on two headings and could not be joined on them.
+
+### Fixed, what an empty cell means
+- `missing` covered three different things: the compilers' dot, a cell with
+  nothing printed in it, and a cell left empty because a braced figure to its
+  left spans it. The third was the serious one. In table 507 the 1909 figure for
+  臺北州 is 646 temples, halls and 神明會 together, printed once across three
+  columns; the dataset gave 646 to 寺廟 alone and marked the other two missing,
+  so a reader would take it as 646 temples. Two new flags: `covered`, 246 rows,
+  for a column a braced figure spans, and `blank`, 709 rows, for an empty cell
+  with nothing to its left. `missing` now means the dot and only the dot, 7,555
+  rows. `verify` checks each flag against what the cell holds, and against the
+  previous file it reports exactly the 955 rows that were mislabelled.

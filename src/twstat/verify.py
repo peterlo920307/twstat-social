@@ -92,8 +92,15 @@ def verify(tidy: pd.DataFrame, raw_dir: str | Path) -> list[Mismatch]:
             if pd.isna(value):
                 if parsed.number is not None:
                     report(f"recorded absent but source reads {parsed.number}")
+                elif flag == Flag.MISSING.value and parsed.raw in ("", "nan"):
+                    report("recorded as the missing mark but the source cell is empty")
                 elif flag == Flag.MISSING.value and parsed.flag is not Flag.MISSING:
                     report(f"recorded missing but source reads {cell!r}")
+                elif flag in (Flag.BLANK.value, Flag.COVERED.value) and parsed.raw not in (
+                    "",
+                    "nan",
+                ):
+                    report(f"recorded as empty but source reads {cell!r}")
                 continue
             if parsed.number is None:
                 report(f"unparsable: {cell!r}")

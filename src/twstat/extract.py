@@ -14,6 +14,7 @@ import re
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from . import sections as sectioning
@@ -35,6 +36,10 @@ _LOOKS_DATED = re.compile(r"[(（]\s*\d{3,5}\s*[)）]")
 # had none, which discarded about 1,900 figures from Mt487-2 and Mt489 and left
 # the survivors as case counts with nothing in the schema saying so. The word
 # after the brace is a second dimension of the row, and goes into dim2.
+# A braced missing mark, └─.─┘: the compilers' dot printed across several
+# columns. The cells it spans are missing jointly with it.
+_BRACED_MISSING = re.compile(r"^[┌└├][─—]*\s*[.．…‥－―-]\s*[─—]*[┐┘┤]?$")
+
 _STUB = re.compile(r"([┌├└])\s*(\S+)\s*$")
 
 __all__ = ["COLUMNS", "Observation", "extract_corpus", "extract_file"]
@@ -69,6 +74,27 @@ class Observation:
     flag: str | None
     src_row: int
     src_col: int
+
+
+def _is_empty(cell: object) -> bool:
+    """Return ``True`` for a cell with nothing in it, as opposed to a printed mark."""
+    return sectioning.clean(cell) is None
+
+
+def _under_brace(cells: np.ndarray, index: int) -> bool:
+    """Return ``True`` if an empty cell is spanned by a braced figure to its left.
+
+    A figure printed across several columns sits in the leftmost of them, inside
+    a drawn brace, and the cells it spans are left empty. Walking left over the
+    empty cells, the first thing met is either that brace or something else.
+    """
+    column = index - 1
+    while column >= 1 and _is_empty(cells[column]):
+        column -= 1
+    if column < 1:
+        return False
+    text = str(cells[column]).strip()
+    return parse_value(text).flag is Flag.BRACKET_ARTIFACT or bool(_BRACED_MISSING.match(text))
 
 
 def _join(column: str | None, row: str | None) -> str | None:
@@ -144,6 +170,9 @@ def extract_file(path: str | Path, spec: SpecBook, table_id: str | None = None) 
                 if index >= frame.shape[1]:
                     continue
                 value = parse_value(grid[row, index])
+                if _is_empty(grid[row, index]):
+                    flag = Flag.COVERED if _under_brace(grid[row], index) else Flag.BLANK
+                    value = Value(None, flag, "")
                 if value.flag is Flag.LESS_THAN_ONE_UNIT and section_spec.zero_is_exact:
                     value = Value(0.0, None, value.raw)
                 if value.number is None and value.flag in (None, Flag.NON_NUMERIC):

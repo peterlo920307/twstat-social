@@ -23,7 +23,19 @@ class Flag(str, Enum):
     """Why a value is absent, or why it needed interpretation."""
 
     MISSING = "missing"
-    """Marked absent in the source. Must not be filled with zero."""
+    """Marked absent in the source with the compilers' dot. Must not be filled
+    with zero. The 2006 digitisation merged their 「－」 (not surveyed) and 「…」
+    (unknown) into this one mark."""
+
+    BLANK = "blank"
+    """The cell is empty in the source: nothing was printed there at all, which
+    is different evidence from a printed mark. Often a category that did not yet
+    exist. Set by the extractor, which can see the row; ``parse`` alone cannot."""
+
+    COVERED = "covered"
+    """Empty because the braced figure to its left spans it. That figure is the
+    combined total for its own column and every covered column that follows it
+    in the row, so neither column can be read on its own. Set by the extractor."""
 
     LESS_THAN_ONE_UNIT = "less_than_one_unit"
     """Printed as ``0``, meaning a quantity below one unit. Left-censored."""

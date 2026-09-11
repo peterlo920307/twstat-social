@@ -134,7 +134,7 @@ def test_the_codebook_flag_counts_are_the_data(tidy):
     counts = dict(re.findall(r"^\| `(\w+)` \| .*\| ([\d,]+) \|$", codebook, re.M))
     blank = re.search(r"^\| （空） \| 數字 \| 一般數值 \| ([\d,]+) \|$", codebook, re.M)
     actual = tidy["flag"].value_counts()
-    for flag in ("missing", "less_than_one_unit", "bracket_artifact"):
+    for flag in ("missing", "blank", "covered", "less_than_one_unit", "bracket_artifact"):
         assert int(counts[flag].replace(",", "")) == actual.get(flag, 0), flag
     assert blank and int(blank.group(1).replace(",", "")) == int(tidy["flag"].isna().sum())
 
