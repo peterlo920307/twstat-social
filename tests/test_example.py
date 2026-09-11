@@ -4,6 +4,10 @@ Every number asserted here appears in that document. If this file needs
 changing, the document needs changing with it.
 """
 
+import ast
+import re
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
@@ -11,28 +15,24 @@ from twstat import extract_corpus, verify
 from twstat.notes import extract_notes
 from twstat.spec import SpecBook
 
-ROWS = [
-    ["表900  歷  年  某  校  概  況", None, None, None],
-    [None, None, None, None],
-    ["1.本省人", None, None, None],
-    [None, "公", None, "立"],
-    [None, "校數", "教員數", "學生數"],
-    ["民國前 十 三 年度底(1899)", 1, 10, "└─69─┘"],
-    ["十 二 年度底(1900)", 1, ".", 89],
-    ["十 一 年度底(1901)", 0, 15, 107],
-    [None, None, None, None],
-    ["2.日本人", None, None, None],
-    [None, "公", None, "立"],
-    [None, "校數", "教員數", "學生數"],
-    ["民國前 十 三 年度底(1899)", 2, 20, 300],
-    ["十 二 年度底(1900)", 2, 22, 340],
-    ["附註:(1)本表為示範用途而編造,非原書資料.", None, None, None],
-]
+EXAMPLE = Path(__file__).resolve().parent.parent / "docs" / "EXAMPLE.md"
+
+
+def document_rows() -> list[list[object]]:
+    """The sheet exactly as docs/EXAMPLE.md builds it.
+
+    Read out of the page rather than typed again here, so that editing the
+    page's sheet without updating what it says about the sheet fails the suite.
+    """
+    text = EXAMPLE.read_text(encoding="utf-8")
+    block = re.search(r"^rows = (\[.*?^\])$", text, re.MULTILINE | re.DOTALL)
+    assert block, "docs/EXAMPLE.md no longer builds its sheet as `rows = [...]`"
+    return ast.literal_eval(block.group(1))
 
 
 @pytest.fixture
 def example(tmp_path):
-    pd.DataFrame(ROWS).to_excel(tmp_path / "Demo_Mt900.xlsx", header=False, index=False)
+    pd.DataFrame(document_rows()).to_excel(tmp_path / "Demo_Mt900.xlsx", header=False, index=False)
     return tmp_path
 
 

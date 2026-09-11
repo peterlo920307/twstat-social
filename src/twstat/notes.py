@@ -75,6 +75,11 @@ def extract_notes(path: str | Path) -> list[Note]:
             following = sectioning.clean(frame.iat[cursor, 0])
             if not following or _HEAD.match(following) or _YEAR.search(following):
                 break
+            # A note printed at the foot of one part runs straight into the
+            # heading of the next when no blank row separates them, and the
+            # heading is long enough to pass for a continuation line.
+            if sectioning._MARKER.match(following):
+                break
             if len(following) < 4:
                 break
             parts.append(following)
@@ -86,7 +91,9 @@ def extract_notes(path: str | Path) -> list[Note]:
                 file=stem,
                 table_id=stem.split("_")[-1],
                 section=number,
-                section_label=label.lstrip("0123456789."),
+                # Both stops the marker pattern accepts, the full-width U+FF0E
+                # included; stripping only the ASCII one left "．官等".
+                section_label=label.lstrip("0123456789.．"),
                 src_row=row + 1,
                 kind=_kind(head),
                 text="".join(parts),

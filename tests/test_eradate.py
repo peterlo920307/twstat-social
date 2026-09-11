@@ -53,6 +53,15 @@ def test_footnotes_are_not_dates(text):
     assert parse(text).year is None
 
 
+def test_a_footnote_citing_a_year_is_still_not_a_date():
+    # The footnotes recount institutional histories and give the year in the
+    # same parenthesised form a row label uses. Without the footnote check the
+    # year would be found, the note read as a data row, and its row extracted.
+    text = "附註:(1)本校於昭和三年(1928)改制為專門學校."
+    assert is_note(text)
+    assert parse(text).year is None
+
+
 @pytest.mark.parametrize("text", ["", "   ", None, "nan", float("nan")])
 def test_empty_input_is_handled(text):
     assert parse(text).year is None

@@ -89,3 +89,62 @@ def test_kappa_is_zero_when_a_single_label_still_disagrees():
     # Both coders used one label each but not the same one. Expected agreement
     # is still 1.0, and observed agreement is 0.
     assert cohen_kappa(list("aaa"), list("bbb")) == 0.0
+
+
+def _cells(table_id, section, rows, dim1="甲"):
+    # One entry per cell of a rows-by-three grid, the shape a real section has.
+    return [
+        {
+            "table_id": table_id,
+            "section": section,
+            "year": 1900 + row,
+            "src_row": row,
+            "src_col": col,
+            "value": float(row * 10 + col),
+            "dim1": dim1,
+        }
+        for row in range(1, rows + 1)
+        for col in (2, 3, 4)
+    ]
+
+
+def test_a_large_section_does_not_crowd_out_small_ones():
+    # A simple random draw of eight rows from this would be almost all Mt1.
+    # The point of stratifying is that a two-row section of a small table gets
+    # checked as often as a section with three hundred rows.
+    tidy = pd.DataFrame(
+        _cells("Mt1", 1, 100) + _cells("Mt2", 1, 2) + _cells("Mt3", 1, 2) + _cells("Mt3", 2, 2)
+    )
+    sheet = coding_sheet(tidy, size=8)
+    counts = sheet.groupby(["table_id", "section"]).size().to_dict()
+    assert counts == {("Mt1", 1): 2, ("Mt2", 1): 2, ("Mt3", 1): 2, ("Mt3", 2): 2}
+
+
+def test_the_sheet_is_in_source_order():
+    # A coder works down each file in turn. Mt1's only section is numbered 2
+    # and Mt2's is numbered 1, and each is a grid, so sorting by any other key
+    # order, or not at all, gives a different sequence.
+    tidy = pd.DataFrame(_cells("Mt2", 1, 5) + _cells("Mt1", 2, 5))
+    sheet = coding_sheet(tidy, size=30)
+    keys = list(
+        zip(sheet["table_id"], sheet["section"], sheet["src_row"], sheet["src_col"], strict=True)
+    )
+    assert len(keys) == 30
+    assert keys == sorted(keys)
+    assert list(sheet.index) == list(range(30))
+
+
+def test_rows_without_a_dim1_never_reach_a_coder():
+    # A row with no dim1 has no pipeline answer to compare the coder's with,
+    # so a coder's time on it is wasted. Mt1 section 2 has none at all and must
+    # not appear; in Mt2 only the rows that have a dim1 may be drawn.
+    tidy = pd.DataFrame(
+        _cells("Mt1", 1, 2)
+        + _cells("Mt1", 2, 2, dim1=None)
+        + _cells("Mt2", 1, 1, dim1=None)
+        + _cells("Mt2", 1, 2, dim1="乙")[3:]
+    )
+    sheet = coding_sheet(tidy, size=100)
+    labelled = tidy[tidy["dim1"].notna()]
+    key = ["table_id", "section", "src_row", "src_col"]
+    assert sheet[key].values.tolist() == labelled[key].values.tolist()

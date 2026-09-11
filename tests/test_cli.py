@@ -1,9 +1,17 @@
-"""Command line behaviour, including its exit codes."""
+"""Command line behaviour, including its exit codes.
+
+The extract, verify and notes commands are run twice over: against the real
+corpus under the ``corpus`` marker, and against the small fixture sheets with
+the 1946 specification book swapped out, so that CI, which has no corpus, still
+runs every path through them.
+"""
 
 import pandas as pd
 import pytest
 
 from twstat.cli import main
+from twstat.extract import COLUMNS
+from twstat.spec import SpecBook
 
 
 @pytest.fixture
@@ -11,7 +19,18 @@ def corpus(raw_dir):
     return raw_dir
 
 
-def test_no_arguments_is_an_error(capsys):
+@pytest.fixture
+def small_corpus(flat_sheet, monkeypatch):
+    # The command always uses the 1946 book; it is replaced here by one that
+    # specifies the fixture sheet. main() imports build at call time, so
+    # patching the module attribute is enough.
+    book = SpecBook()
+    book.define("Test_Mt998", 1, [(2, 2, "校數"), (3, 3, "學生")])
+    monkeypatch.setattr("twstat.corpus1946.build", lambda: book)
+    return flat_sheet.parent
+
+
+def test_no_arguments_is_an_error():
     with pytest.raises(SystemExit) as exit_info:
         main([])
     assert exit_info.value.code != 0
@@ -132,3 +151,83 @@ def test_notes_reads_xlsx_as_well_as_xls(tmp_path, capsys):
     assert main(["notes", str(tmp_path), str(destination)]) == 0
     assert len(pd.read_csv(destination)) == 1
     assert "1 notes from 1 files" in capsys.readouterr().out
+
+
+def test_extract_writes_the_specified_rows(small_corpus, tmp_path, capsys):
+    destination = tmp_path / "out" / "tidy.csv"
+    assert main(["extract", str(small_corpus), str(destination)]) == 0
+
+    frame = pd.read_csv(destination)
+    assert list(frame.columns) == COLUMNS
+    assert list(zip(frame["src_row"], frame["src_col"], strict=True)) == [
+        (3, 2),
+        (3, 3),
+        (4, 2),
+        (4, 3),
+        (5, 2),
+        (5, 3),
+    ]
+    # Six rows, one of them the missing marker, so five carry a number.
+    assert capsys.readouterr().out == f"{destination}: 6 rows, 5 values, 1 tables\n"
+
+
+def test_verify_reports_success_on_a_faithful_file(small_corpus, tmp_path, capsys):
+    destination = tmp_path / "tidy.csv"
+    main(["extract", str(small_corpus), str(destination)])
+    capsys.readouterr()
+
+    assert main(["verify", str(destination), str(small_corpus)]) == 0
+    assert capsys.readouterr().out == "5 values checked, no mismatches\n"
+
+
+def test_verify_names_each_mismatch_and_exits_non_zero(small_corpus, tmp_path, capsys):
+    destination = tmp_path / "tidy.csv"
+    main(["extract", str(small_corpus), str(destination)])
+    capsys.readouterr()
+
+    frame = pd.read_csv(destination)
+    frame.loc[(frame["src_row"] == 3) & (frame["src_col"] == 2), "value"] = 3.5
+    frame.to_csv(destination, index=False, encoding="utf-8-sig")
+
+    assert main(["verify", str(destination), str(small_corpus)]) == 1
+    captured = capsys.readouterr()
+    assert captured.out == "Mt998 r3 c2: 3.0 != 3.5\n"
+    assert captured.err == "1 mismatch out of 5\n"
+
+
+def test_verify_counts_several_mismatches(small_corpus, tmp_path, capsys):
+    destination = tmp_path / "tidy.csv"
+    main(["extract", str(small_corpus), str(destination)])
+    frame = pd.read_csv(destination)
+    frame.loc[frame["src_row"] == 3, "value"] += 1
+    frame.to_csv(destination, index=False, encoding="utf-8-sig")
+    capsys.readouterr()
+
+    assert main(["verify", str(destination), str(small_corpus)]) == 1
+    captured = capsys.readouterr()
+    assert captured.out.splitlines() == ["Mt998 r3 c2: 3.0 != 4.0", "Mt998 r3 c3: 100.0 != 101.0"]
+    assert captured.err == "2 mismatches out of 5\n"
+
+
+def test_notes_writes_every_note_of_every_file(annotated_sheet, flat_sheet, tmp_path, capsys):
+    # Both fixtures write into the same directory, which is the corpus here.
+    destination = tmp_path / "out.csv"
+    assert main(["notes", str(tmp_path), str(destination)]) == 0
+
+    frame = pd.read_csv(destination, keep_default_na=False)
+    assert list(frame.columns) == [
+        "file",
+        "table_id",
+        "section",
+        "section_label",
+        "src_row",
+        "kind",
+        "text",
+    ]
+    assert frame.values.tolist() == [
+        ["Test_Mt996", "Mt996", 1, "第一區段", 5, "note", "附註:(1)第一行說明接續的第二行說明文字"],
+        ["Test_Mt996", "Mt996", 2, "第二區段", 10, "note", "註:短註"],
+        ["Test_Mt996", "Mt996", 2, "第二區段", 11, "source", "材料來源:測試資料"],
+        ["Test_Mt998", "Mt998", 1, "", 6, "source", "材料來源:測試用"],
+    ]
+    assert capsys.readouterr().out == f"{destination}: 4 notes from 2 files\n"

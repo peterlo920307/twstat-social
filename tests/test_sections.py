@@ -92,3 +92,62 @@ def test_a_decimal_number_is_not_a_section_marker(tmp_path):
     pd.DataFrame(rows).to_excel(path, header=False, index=False)
     frame = pd.read_excel(path, header=None)
     assert len(find(frame)) == 1
+
+
+def _frame(tmp_path, rows):
+    path = tmp_path / "Test_Mt990.xlsx"
+    pd.DataFrame(rows).to_excel(path, header=False, index=False)
+    return pd.read_excel(path, header=None)
+
+
+def test_header_rows_are_exactly_the_rows_with_column_text(tmp_path):
+    # The title carries a unit note at the right, so it has text beyond
+    # column 0 and would pass as a heading if its 表 were not checked. The unit
+    # note in row 4 sits in column 0 only; a row is a heading because of text
+    # over the data columns, and column 0 is where the row labels live.
+    rows = [
+        ["表990 標題測試", None, None, "(單位:人)"],
+        [None, "公", None, "立"],
+        [None, "校數", "教員數", "學生數"],
+        ["單位:人", None, None, None],
+        ["十 一 年(1922)", 1, 10, 100],
+    ]
+    frame = _frame(tmp_path, rows)
+    assert header_rows(frame, find(frame)[0]) == (4, [1, 2])
+
+
+def test_a_marker_row_is_not_a_header_row(tmp_path):
+    # Both markers carry text to their right. The first sits above a real
+    # heading; the second part has no heading of its own, so if the marker row
+    # were taken as one it would be the innermost header and its text would
+    # become dim2.
+    rows = [
+        ["表990 標記測試", None, None, None],
+        ["1.本省人", None, None, "(單位:人)"],
+        [None, "校數", "教員數", "學生數"],
+        ["十 一 年(1922)", 1, 10, 100],
+        ["2.日本人", None, "(續)", None],
+        ["十 一 年(1922)", 2, 20, 200],
+    ]
+    frame = _frame(tmp_path, rows)
+    first, second = find(frame)
+    assert header_rows(frame, first) == (3, [2])
+    assert header_rows(frame, second) == (5, [])
+
+
+def test_a_long_numbered_sentence_is_a_footnote_not_a_section(tmp_path):
+    # A numbered footnote line has the shape of a marker: digit, stop, text.
+    # Length is what separates them. The longest heading in the 1946 corpus is
+    # 18 characters and nothing there of this shape reaches forty, so only this
+    # test holds the limit in place.
+    sentence = "2.本表所列學生數係指各年度末在學之學生不含已退學休學及轉學之學生亦不含選科生聽講生"
+    rows = [
+        ["表990 長句測試", None],
+        ["1.本省人", None],
+        [None, "學生數"],
+        ["十 一 年(1922)", 5],
+        [sentence, None],
+    ]
+    frame = _frame(tmp_path, rows)
+    sections = find(frame)
+    assert [(s.label, s.start, s.end) for s in sections] == [("1.本省人", 1, 5)]

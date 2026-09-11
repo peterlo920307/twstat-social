@@ -14,7 +14,9 @@ def test_numbers(cell, number):
     assert parsed.flag is None
 
 
-@pytest.mark.parametrize("cell", [".", "．", "…", "-", "－", "─", "", None, "nan"])
+# Every spelling in values._MISSING. The two-dot leader ‥ and the horizontal bar
+# ― look like the ellipsis and the dash but are different code points.
+@pytest.mark.parametrize("cell", [".", "．", "…", "‥", "-", "－", "―", "─", "", None, "nan"])
 def test_missing_markers(cell):
     parsed = parse(cell)
     assert parsed.number is None

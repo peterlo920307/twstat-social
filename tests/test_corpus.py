@@ -91,3 +91,14 @@ def test_no_two_observations_claim_the_same_thing(tidy):
 def test_each_source_cell_is_used_once(tidy):
     counts = tidy.groupby(["table_id", "src_row", "src_col"]).size()
     assert counts.max() == 1
+
+
+def test_the_committed_notes_are_what_the_package_produces(raw_dir, tmp_path):
+    # data/notes.csv is written by `twstat notes raw data/notes.csv`, and until
+    # this test nothing compared it with the code. data/tidy.csv drifted in
+    # exactly that position.
+    from twstat.cli import main
+
+    produced = tmp_path / "notes.csv"
+    assert main(["notes", str(raw_dir), str(produced)]) == 0
+    assert pd.read_csv(produced).equals(pd.read_csv(DATA / "notes.csv"))

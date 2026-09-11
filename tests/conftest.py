@@ -3,6 +3,13 @@
 Most tests build small spreadsheets in memory so that the suite runs without the
 source corpus, which is not kept in version control. The tests marked ``corpus``
 need the real files and are skipped when they are absent.
+
+The sheet fixtures below all write into the test's one ``tmp_path``, so a test
+that requests two of them gets both files in the same directory. The
+``extract_corpus`` tests rely on that: they pass ``flat_sheet.parent`` as the
+corpus directory and assert on what is and is not picked up from it. A fixture
+that writes somewhere else, or a new file added to ``tmp_path``, changes what
+those tests see.
 """
 
 from pathlib import Path
