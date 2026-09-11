@@ -187,3 +187,20 @@ def test_the_data_package_describes_the_files_as_they_are():
     periods = set(tidy_fields["period_type"]["constraints"]["enum"])
     assert periods == {period.value for period in Period}
     assert package["version"] == __import__("twstat").__version__
+
+
+def test_the_coverage_figure_is_drawn_from_the_current_data(tidy, tmp_path, monkeypatch):
+    # The README shows it; if the data moves and the figure does not, the
+    # picture of the dataset's shape is wrong while every test on the data passes.
+    import importlib.util
+
+    script = ROOT / "scripts" / "coverage_figure.py"
+    spec = importlib.util.spec_from_file_location("coverage_figure", script)
+    figure = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(figure)
+    monkeypatch.setattr(figure, "OUT", tmp_path)
+    figure.main()
+    for name in ("coverage.svg", "coverage-dark.svg", "coverage.csv"):
+        drawn = (tmp_path / name).read_text(encoding="utf-8")
+        committed = (ROOT / "docs" / "figures" / name).read_text(encoding="utf-8")
+        assert drawn == committed.replace("\r\n", "\n"), f"{name}: run scripts/coverage_figure.py"

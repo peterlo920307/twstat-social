@@ -53,6 +53,19 @@ and welfare — that is **39,150 rows, 30,640 values, 48 tables,
 | [`data/validation_sample.csv`](data/validation_sample.csv) | A blank coding sheet for checking the labels, 234 cells |
 | [`data/datapackage.json`](data/datapackage.json) | All four described in the Frictionless Data format: every column's type, allowed values, and the keys that join the files. CI validates the data against it |
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/coverage-dark.svg">
+  <img alt="Stacked columns of how many tables report each year from 1895 to 1945, by chapter: none for 1895 and 1896, rising from 6 in 1897 to about 47 in the 1930s, then falling from 43 in 1942 to 15 in 1943." src="docs/figures/coverage.svg">
+</picture>
+
+The shape of the dataset. Statistics begin in 1897 with six health tables and
+grow as the colonial statistical system does, so early rises in the figures may
+be the counting growing rather than the thing counted. Coverage collapses in
+1943, and the collapse is not even: every health table stops in 1942, welfare
+falls from 17 tables to 2, and education keeps 13. The counts are in
+[`docs/figures/coverage.csv`](docs/figures/coverage.csv);
+`python scripts/coverage_figure.py` redraws it from the data.
+
 ## Install
 
 To use it:
