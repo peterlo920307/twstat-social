@@ -75,11 +75,14 @@ def _is_header_band(grid: np.ndarray, row: int) -> bool:
 
     Two or more cells right of the label column that hold text no number can be
     read out of. One such cell is a unit note or a stray mark; two is a heading.
+    A cell that opens with a digit is a quantity with its unit, such as the
+    conversion rates 「33.5公升」 printed across one forestry table, and not a
+    heading, so it does not count.
     """
     found = 0
     for column in range(1, grid.shape[1]):
         text = clean(grid[row, column])
-        if not text:
+        if not text or text[0].isdigit():
             continue
         value = parse_value(text)
         if value.number is None and value.flag is not None and value.flag.value == "non_numeric":

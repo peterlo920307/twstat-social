@@ -132,7 +132,7 @@ years earlier.
 
 **The missing-value legend carries over within the compendium.** Across 473,293
 cells of unseen chapters the proportions sit close to those in the chapters the
-code was written against: 69.4% numbers against 74.3%, 24.0% missing against
+code was written against: 69.7% numbers against 74.5%, 24.0% missing against
 18.4%.
 
 **Resolving the Gregorian year does not carry over.** `eradate` reads the year
@@ -144,15 +144,15 @@ the arithmetic themselves. It is safe to do: the conversion agrees with the
 printed year on all 59 labelled pairs in the yearbook and all 117 checkable
 labels here. It is simply not needed for this corpus.
 
-**Section handling is more specialised than it looks.** 11 of our 50 tables are
-stacked, but only 20 of the other 599. Education, hygiene and welfare had their
+**Section handling is more specialised than it looks.** 12 of the 50 tables here
+are stacked, but only 27 of the other 599. Education, hygiene and welfare had their
 categories reorganised repeatedly across fifty years, and the compilers cut such
 tables into parts rather than merge them. The three chapters that motivated this
 machinery are the three that need it most; on the rest of the book it does
 nothing.
 
-**One shape is out of scope entirely.** 152 of the 649 sections in the unseen
-chapters — 23.4% — are cross-sectional snapshots with no dated rows at all, such
+**One shape is out of scope entirely.** 152 of the 663 sections in the unseen
+chapters — 22.9% — are cross-sectional snapshots with no dated rows at all, such
 as a staffing table whose rows are job titles. The schema here begins with a
 year, so these are refused rather than mangled. A quarter of the compendium
 cannot be represented by this data model. Anyone extending the dataset to the

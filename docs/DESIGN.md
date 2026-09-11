@@ -161,7 +161,7 @@ proposed rather than established until it is done.
 ## 9. Cross-sectional tables are refused
 
 `header_rows` returns nothing for a section with no dated rows, and the section
-is skipped. 152 of the 649 sections in the compendium's other chapters — 23.4% —
+is skipped. 152 of the 663 sections in the compendium's other chapters — 22.9% —
 are of this kind: a staffing table whose rows are job titles and columns are
 departments, at one moment in time.
 

@@ -151,3 +151,32 @@ def test_a_long_numbered_sentence_is_a_footnote_not_a_section(tmp_path):
     frame = _frame(tmp_path, rows)
     sections = find(frame)
     assert [(s.label, s.start, s.end) for s in sections] == [("1.本省人", 1, 5)]
+
+
+def test_a_row_of_conversion_rates_between_data_rows_is_not_a_header_band(tmp_path):
+    # Two forestry tables print litres or kilograms per unit between two years.
+    # Both cells are text a number cannot be read out of, but a heading never
+    # opens with a digit, and splitting here would label the next rows with them.
+    rows = [
+        ["表974 換算率測試", None, None],
+        [None, "木炭", "薪材"],
+        ["二十四年度(1935)", 424, 80],
+        [None, "33.5公升", "16.2公升"],
+        ["二十五年度(1936)", 363, 44],
+    ]
+    path = tmp_path / "Test_Mt974.xlsx"
+    pd.DataFrame(rows).to_excel(path, header=False, index=False)
+    assert len(find(pd.read_excel(path, header=None))) == 1
+
+
+def test_a_second_band_of_headings_starts_a_new_section(tmp_path):
+    rows = [
+        ["表973 表頭帶測試", None, None],
+        [None, "傷寒", "赤痢"],
+        ["二十年(1931)", 762, 46],
+        [None, "肺結核", "梅毒"],
+        ["二十年(1931)", 1310, 1170],
+    ]
+    path = tmp_path / "Test_Mt973.xlsx"
+    pd.DataFrame(rows).to_excel(path, header=False, index=False)
+    assert [s.start for s in find(pd.read_excel(path, header=None))] == [0, 3]

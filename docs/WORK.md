@@ -49,7 +49,7 @@ What they found that is fixed is in the changelog; this is what is not.
       Clause 11 says a printed `0` means below one unit, but Mt491's own footnote
       says its `0` means "there were patients but no deaths" — an exact zero. The
       flag needs to be settable per table.
-- [ ] R06 **The download scripts accept an error page as data.** The Sinica host
+- [x] R06 **The download scripts accept an error page as data.** The Sinica host
       is behind a WAF that returns HTTP 200 with an HTML page; every script
       writes it to `raw/` and reports success. Needs a magic-byte and length
       check, atomic writes via a `.part` file, and a checksum manifest.

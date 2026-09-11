@@ -60,7 +60,13 @@ continuous. A band is a row, not itself dated, carrying two or more cells of tex
 no number can be read out of. One such cell is a unit note; two is a heading.
 
 Run over all fifty files, the band detector fires on exactly the three sections
-above and nowhere else. Those three files go from 1, 2 and 2 sections to 5, 7 and
+above and nowhere else. In the 599 unseen tables it splits seven more files,
+nearly all genuine: the police-establishment table, for one, changes its whole
+column layout after the 1920 reorganisation. Four of its first splits there were
+not genuine. They fell on rows of conversion rates printed between two data
+rows — 「33.5公升」, 「18公斤」 — which read as two cells of text. A heading
+cell never opens with a digit, and the rule now says so; the published data is
+unchanged by it. Those three files go from 1, 2 and 2 sections to 5, 7 and
 6, and the corpus from 65 specified sections to 78.
 
 ## Reading 350 disease names off the sheet

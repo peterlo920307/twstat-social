@@ -18,7 +18,7 @@ finance, fishing, forestry, animal husbandry, industry, justice, labour, land,
 mining, monopoly, police, population, post, railways, roads, shipping — were
 downloaded and run through `sections` and `values` without being looked at first.
 
-**599 files, 649 sections, 473,293 non-blank cells.** That is ten times the
+**599 files, 663 sections, 473,293 non-blank cells.** That is ten times the
 cells the code was written against, typeset by the same compilers for subjects I
 have not read.
 
@@ -71,17 +71,17 @@ the output instead of dropping it.
 
 ## What held up
 
-**Section detection, once the stop was fixed.** 649 sections across 599 files, no
+**Section detection, once the stop was fixed.** 663 sections across 599 files, no
 markers missed.
 
 **The missing-value legend.** The proportions are close enough to those in the
 three chapters the code was written against that nothing looks out of place:
-69.4% numbers against 74.3%, 24.0% missing against 18.4%, 6.5% non-numeric
-against 6.9%. The unseen chapters are
+69.7% numbers against 74.5%, 24.0% missing against 18.4%, 6.2% non-numeric
+against 6.7%. The unseen chapters are
 slightly sparser, which is what one would expect of subjects that were surveyed
 less often than schools and hospitals.
 
-**Refusing cross-sectional tables.** 152 of the 649 sections (23.4%) have no
+**Refusing cross-sectional tables.** 152 of the 663 sections (22.9%) have no
 dated row and `header_rows` returns `(None, [])` for them. That is correct
 behaviour, not a failure: `表100 臺灣省行政長官公署法定員額` is a snapshot of
 one point in time, rows are job titles and columns are departments, and it has no
@@ -108,8 +108,8 @@ writes specifications for the remaining tables knows to expect it.
 
 ## Why section handling looks more general than it is
 
-**11 of the 50 tables here are stacked (22%). Only 20 of the other 599 are
-(3.3%).**
+**12 of the 50 tables here are stacked (24%). Only 27 of the other 599 are
+(4.5%).**
 
 Education, hygiene and welfare are unusually complicated. Their categories were
 reorganised repeatedly across fifty years — schools were renamed and merged,

@@ -18,7 +18,7 @@ Two corpora were used, both published by the Institute of Economic Research,
 Hitotsubashi University:
 
 - **LTES** — *Estimates of Long-Term Economic Statistics of Japan since 1868*.
-  Eight volumes, 290 sheets.
+  Eight workbooks covering volumes 1 to 5, 290 sheets.
 - **The Imperial Statistical Yearbook index**, 1882–1940. 33,116 table titles,
   each row also carrying the Gregorian year, which makes it a labelled test set
   rather than just a pile of unseen strings.
