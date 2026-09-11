@@ -109,5 +109,5 @@ era arithmetic, those tests are where they will have to say so deliberately.
 Only `eradate` was tested here. `sections` and `values` encode assumptions about
 typesetting that these corpora cannot exercise, because neither is a scan of a
 printed table with stacked sections and scattered-character headers. That is W06,
-and it uses the 584 tables of the compendium's other 21 chapters, which this
+and it uses the 599 tables of the compendium's other 21 chapters, which this
 package has never seen.

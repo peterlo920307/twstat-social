@@ -44,7 +44,7 @@ Nine things, and every one of them occurs in the real corpus.
 | Row 6 | The year is `民國前 十 三 年度底(1899)`: era reckoning, spaces inside the numeral, the reporting convention in words, the Gregorian year in brackets |
 | Row 6 | 年度底 is a **fiscal year end**, 31 March 1900, not 31 December 1899 |
 | Row 6 col 4 | `└─69─┘` is 69 inside a brace the printer drew across merged columns |
-| Row 7 col 3 | `.` is not zero. It is a value that was never collected |
+| Row 7 col 3 | `.` is not zero. It was either not surveyed or unknown, and the digitisation lost which |
 | Row 8 col 2 | `0` is not zero either. The compilers' legend says it means **less than one unit** |
 | Row 15 | A footnote, which belongs to the second table and not the first |
 
@@ -78,7 +78,7 @@ from twstat import extract_corpus
 tidy = extract_corpus(".", book)
 ```
 
-Fifteen rows:
+Fifteen rows, the first ten shown:
 
 ```
 table_id  section section_label  year     period_type dim1 dim2  value               flag  src_row  src_col
@@ -95,10 +95,10 @@ table_id  section section_label  year     period_type dim1 dim2  value          
    ...
 ```
 
-Read across one row and you can check the whole chain yourself. Row 3 says: the
-figure 69 is the number of students in a Taiwanese public school, for the fiscal
-year ending 31 March 1900, and it came from row 6 column 4 of the sheet, where it
-was printed inside a brace. Open the file at that cell and there it is.
+Read across one row and you can check the whole chain yourself. The third row
+says: the figure 69 is a count of students in the Taiwanese section, for the
+fiscal year ending 31 March 1900, and it came from row 6 column 4 of the sheet,
+where it was printed inside a brace. Open the file at that cell and there it is.
 
 The three awkward cells came out as they should:
 
@@ -115,8 +115,9 @@ assert verify(tidy, ".") == []
 ```
 
 This is not a sample. It reopens the spreadsheet, goes to the cell named by
-`src_row` and `src_col` in each of the fifteen rows, applies the same reading
-rules, and compares. Fifteen out of fifteen.
+`src_row` and `src_col`, applies the same reading rules, and compares. Fourteen
+of the fifteen rows carry a number; the fifteenth is the missing marker at row 7,
+which has nothing to compare against. Fourteen out of fourteen.
 
 ## 6. Now break it, and watch verification pass anyway
 
@@ -141,9 +142,8 @@ education tables, and passed every check it had. Seven tables already reported
 finished had to be redone. [`D15_section_bug.md`](D15_section_bug.md) is the
 record.
 
-The lesson generalises past this project: a verification layer finds only the
-class of error it was built to find, and passing it is not the same as being
-right.
+You have just watched it happen on nine rows. It happened on two real education
+tables for as long as it took someone to notice.
 
 ## 7. The footnotes
 

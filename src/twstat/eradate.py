@@ -8,8 +8,8 @@ writing pre-1912 years as 民國前 N, and appended the Gregorian year in
 parentheses. That parenthesised year appears on 98.2% of date-like row labels;
 only 5.3% name an era at all.
 
-What is inconsistent is the typography and the reporting convention. Numerals are
-separated by spaces for justification, and a single table may mix four period
+The typography and the reporting convention are not consistent. Numerals are
+separated by spaces for justification, and a single table may mix period
 conventions whose meanings do not coincide.
 
 The period distinction matters. A "fiscal year end" figure is dated 31 March of
@@ -30,7 +30,7 @@ __all__ = ["EraDate", "Period", "is_note", "parse"]
 class Period(str, Enum):
     """The reporting convention a figure is dated by.
 
-    Definitions follow the compilation notes of the 1946 Taiwanese compendium,
+    Definitions follow the compilation notes of the 1946 Taiwan Province compendium,
     clause 12: a fiscal year runs 1 April to 31 March; ``FISCAL_YEAR_END`` refers
     to 31 March of the following year; ``YEAR_END`` refers to 31 December.
     """
@@ -84,8 +84,8 @@ def parse(text: object) -> EraDate:
     """Interpret a row label.
 
     The Gregorian year is taken from the parenthesised form. Era numerals are not
-    converted arithmetically, and it is worth being precise about why, because
-    the obvious reason is not the real one. Arithmetic conversion is not unsafe
+    converted arithmetically. The obvious reason is not the real one.
+    Arithmetic conversion is not unsafe
     here: on the 117 label occurrences that carry both an era numeral and a
     printed Gregorian year, 民國前 N = 1912 - N and 民國 N = 1911 + N agree with
     the printed year every time. It is simply useless. Only 5.3% of date-like

@@ -5,9 +5,17 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -26,5 +34,54 @@ jobs:
 
       - name: Test
         # The corpus tests need the source spreadsheets, which are not in the
-        # repository; they are deselected here and run locally.
-        run: pytest -q -m "not corpus" --cov=twstat --cov-report=term-missing
+        # repository; they are deselected here and run locally. The coverage
+        # floor is below the 99% actually achieved so that a genuine drop is
+        # caught without the build failing over a line or two.
+        run: pytest -q -m "not corpus" --cov=twstat --cov-report=term-missing --cov-fail-under=90
+
+  package:
+    # The tests above install with -e, which puts src/ straight on the path. A
+    # module missing from the wheel would therefore pass every test. This job
+    # is the only thing that checks what a user actually receives.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install build twine
+
+      - name: Build
+        run: python -m build
+
+      - name: Check the metadata
+        run: twine check --strict dist/*
+
+      - name: Install the wheel rather than the source tree
+        run: |
+          python -m venv /tmp/fresh
+          /tmp/fresh/bin/pip install dist/*.whl
+
+      - name: The entry point has to run
+        run: |
+          /tmp/fresh/bin/twstat --help
+          /tmp/fresh/bin/python -c "import twstat; print(twstat.__version__)"
+
+      - name: The wheel must not carry the data or the sources
+        run: |
+          python - <<'PY'
+          import glob, zipfile
+          names = zipfile.ZipFile(glob.glob("dist/*.whl")[0]).namelist()
+          leaked = [n for n in names if n.startswith(("data/", "raw/", "docs/", "tests/"))]
+          assert not leaked, leaked
+          assert any(n.endswith("twstat/py.typed") for n in names), "py.typed missing"
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/

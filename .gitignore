@@ -1,8 +1,6 @@
 # 原始資料不入庫 —— 由 scripts/download_raw.py 重現
-raw/*.xls
-raw/preface/*.pdf
-raw/preface/*.png
-raw/preface/ocr_*.txt
+raw/*
+!raw/.gitkeep
 
 # 已停用的舊版本
 .archive/
@@ -15,6 +13,8 @@ dist/
 .coverage.*
 htmlcov/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 __pycache__/
 *.pyc

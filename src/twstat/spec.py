@@ -6,8 +6,9 @@ they span, a plausible-looking reconstruction can fuse two labels into one, or
 absorb the table title into a column name, and produce output that passes any
 obvious sanity check while being wrong.
 
-Specifications are therefore written by hand, one per section, and every column
-carries the note that it is machine-proposed until a human has checked it.
+Specifications are therefore written by hand, one per section. None has been
+checked by a second reader; ``docs/CODING_SHEET.md`` sets out the check that is
+still outstanding.
 """
 
 from __future__ import annotations

@@ -1,8 +1,8 @@
 # Design decisions and what they cost
 
-Each decision below is stated with the alternative it was chosen over, what it
-costs, and what would change it. Several were made twice, because the first
-version was wrong; those are marked.
+Each decision below is stated with the alternative it was chosen over and what
+it costs. Where something specific would change the decision, that is said too.
+Several were made twice, because the first version was wrong; those are marked.
 
 ## 1. Every row carries the cell it came from
 
@@ -10,10 +10,10 @@ version was wrong; those are marked.
 alternative is a tidy table with no provenance, which is what most published
 historical datasets are.
 
-The cost is real: the two columns are about a fifth of the file, and 36,672 rows
-of ten columns is 2.9 MB where the values alone would be a fraction of that.
+The cost is real: the two columns are 7.4% of the file, and 36,672 rows of
+eleven columns is 2.8 MB.
 
-They buy the only claim in this project that is worth anything. `twstat verify`
+They buy the one claim here that can be checked in full. `twstat verify`
 re-reads every value from its source cell and compares. Not a sample, not an
 estimate — all 28,667 of them, and it currently reports no mismatches. A dataset
 that says "we checked 200 rows and found two errors" is telling you about its
@@ -26,15 +26,17 @@ provenance would have to move to a side table.
 ## 2. The reporting convention is a column, not a footnote
 
 `period_type` takes one of five values: `calendar_year`, `year_end`,
-`fiscal_year`, `fiscal_year_end`, `academic_year`. A fiscal year runs 1 April to
-31 March and a fiscal year end refers to 31 March following, both by clause 12 of
-the compilers' own notes.
+`fiscal_year`, `fiscal_year_end`, `academic_year`. Four of them occur in the
+published data; no table here is dated by academic year. A fiscal year runs
+1 April to 31 March and a fiscal year end refers to 31 March of the following
+year, both by clause 12 of the compilers' own notes.
 
 The alternative — and it is what everyone else does — is to put the year in the
-year column and mention the convention in prose. Over 60% of the observations
-here are dated on a fiscal basis. Merging them into a calendar series produces
-something that looks continuous and is wrong by up to a year in places, and
-nothing downstream can detect it.
+year column and mention the convention in prose. Only 37% of the observations
+here are dated by a plain calendar year: 39% are fiscal and 24% are year-end.
+Flattening the other 63% into a calendar series produces something that looks
+continuous and is wrong by up to a year in places, and nothing downstream can
+detect it.
 
 `W05_generalisation.md` records this failure in the wild. The Hitotsubashi
 long-term economic series normalised its dates to the Gregorian calendar, and the
@@ -58,8 +60,8 @@ computed over those series downward, quietly.
 and the ellipsis to a full stop, so the distinction between "not surveyed" and
 "unknown" is gone from the spreadsheets and cannot be recovered from them. Both
 become `flag = missing`. Anyone who needs the distinction has to go back to the
-printed book. This is a loss caused by the digitisation, not by the compilers,
-and it is stated plainly rather than papered over.
+printed book. This is a loss caused by the digitisation, not by the compilers.
+It matters because it puts a ceiling on what the `missing` flag can ever mean.
 
 ## 4. Column meanings are written by hand
 
@@ -82,7 +84,7 @@ has one. Until then the labour is the price of not publishing confident nonsense
 
 ## 5. Sections are a first-class column, not an assumption
 
-**Decided twice.** Eleven of the fifty tables stack several tables in one sheet,
+**Decided twice.** Eleven of the fifty files stack several tables in one sheet,
 each with its own header. The first pipeline found the first dated row and read
 to the end of the file, which merged Taiwanese and Japanese populations into
 single series in two education tables.
@@ -134,8 +136,8 @@ only send if they can see it.
 
 `bracket_artifact` is worth singling out. A figure spanning several printed
 columns is set inside a drawn brace which the digitisation kept in the cell. The
-pattern for it matched one spelling out of several, and **102 figures in the
-published corpus were being discarded as unreadable** until `W06_layout.md`.
+pattern for it matched one spelling out of several, and 98 figures in the
+published corpus were being discarded as unreadable until `W06_layout.md`.
 They were invisible precisely because a dropped row leaves nothing behind.
 Flagged rows can be counted; dropped rows cannot.
 
@@ -159,24 +161,23 @@ proposed rather than established until it is done.
 ## 9. Cross-sectional tables are refused
 
 `header_rows` returns nothing for a section with no dated rows, and the section
-is skipped. 151 of the 632 sections in the compendium's other chapters — 23.9% —
+is skipped. 152 of the 649 sections in the compendium's other chapters — 23.4% —
 are of this kind: a staffing table whose rows are job titles and columns are
 departments, at one moment in time.
 
 The schema begins with a year. A snapshot has no place in it, and forcing one in
-by inventing a year would be worse than declining. **A quarter of the compendium
-cannot be represented by this data model**, which anyone planning to extend the
-dataset to the whole book needs to know before they start.
+by inventing a year would be worse than declining. A quarter of the compendium
+cannot be represented by this data model. Anyone extending the dataset to the
+whole book should know that before they start.
 
 ## 10. The source spreadsheets are not redistributed
 
 `raw/` is not in version control. `scripts/download_raw.py` fetches the files
 from Academia Sinica, whose digitisation they are.
 
-The compendium itself is a government document and not subject to copyright under
-Article 9 of the Copyright Act of the Republic of China, and the figures are
-facts. The 2006 digitisation is somebody's work, and the courteous thing is to
-point at it rather than mirror it.
+The compendium is a government document and the figures are facts; the README
+gives the copyright position. The 2006 digitisation is somebody's work, and the
+courteous thing is to point at it rather than mirror it.
 
 **The cost** is that the test suite has to run without the corpus. Tests that
 need it are marked `corpus` and skip when `raw/` is absent; the rest build small

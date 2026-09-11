@@ -1,9 +1,8 @@
 """Checking extracted numbers back against the cells they came from.
 
 Every observation records the row and column it was read from, so the whole
-dataset can be re-read from the source rather than sampled. This is a stronger
-claim than an accuracy estimate: it is a complete check, and it reports exact
-counts.
+dataset can be re-read from the source rather than sampled. That makes the check
+complete rather than an accuracy estimate.
 
 It checks numbers only. The meaning attached to a column is a separate question
 that this cannot answer, and the errors it cannot see are the more serious ones.

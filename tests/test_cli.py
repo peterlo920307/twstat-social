@@ -57,7 +57,7 @@ def test_verify_exits_non_zero_on_a_mismatch(corpus, tmp_path, capsys):
     assert main(["verify", str(destination), str(corpus)]) == 1
     captured = capsys.readouterr()
     assert "999999" in captured.out
-    assert "1 mismatches" in captured.err
+    assert "1 mismatch out of" in captured.err
 
 
 @pytest.mark.corpus
@@ -114,3 +114,21 @@ def test_a_different_seed_draws_a_different_sheet(tmp_path):
     main(["sample", str(source), str(one), "--size", "5", "--seed", "1"])
     main(["sample", str(source), str(two), "--size", "5", "--seed", "2"])
     assert not pd.read_csv(one).equals(pd.read_csv(two))
+
+
+def test_notes_reads_xlsx_as_well_as_xls(tmp_path, capsys):
+    # verify and extract_corpus each globbed only *.xls once, and each returned
+    # nothing without complaining. This command was the third instance.
+    rows = [
+        ["表993 附註測試", None],
+        ["1.第一區段", None],
+        [None, "學生數"],
+        ["十 一 年(1922)", 5],
+        ["附註:(1)測試用的附註文字", None],
+    ]
+    pd.DataFrame(rows).to_excel(tmp_path / "Test_Mt993.xlsx", header=False, index=False)
+
+    destination = tmp_path / "notes.csv"
+    assert main(["notes", str(tmp_path), str(destination)]) == 0
+    assert len(pd.read_csv(destination)) == 1
+    assert "1 notes from 1 files" in capsys.readouterr().out

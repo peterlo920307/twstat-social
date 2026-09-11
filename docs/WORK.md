@@ -49,7 +49,7 @@ All twelve are done. What remains is not engineering.
 
 ## Worth doing, nobody is asking for it
 
-- Extend beyond the three chapters. 582 tables are downloadable and the code now
+- Extend beyond the three chapters. 599 tables are downloadable and the code now
   reads them; what is missing is 500-odd hand-written column specifications.
   [`W06_layout.md`](W06_layout.md) says what to expect, including that a quarter
   of them are cross-sectional and outside this schema entirely.

@@ -102,7 +102,7 @@ attempted and abandoned, for reasons given below.
 
 It is easy to claim that code written for one book is general. Everything below
 was measured against material this package had never seen: two external corpora
-published by Hitotsubashi University, and the 582 tables of the compendium's
+published by Hitotsubashi University, and the 599 tables of the compendium's
 other 21 chapters. `scripts/second_corpus.py` and `scripts/holdout.py` reproduce
 every figure. The full accounts are in `docs/W05_generalisation.md` and
 `docs/W06_layout.md`.
@@ -114,9 +114,10 @@ Statistical Yearbook, 1882–1940, the parser typed every one: 15,311 calendar
 years and 5,108 fiscal years. Different government, different country, thirty
 years earlier.
 
-**The missing-value legend carries over within the compendium.** Across 459,749
-cells of unseen chapters the proportions sit close to the chapters the code was
-written against: 70.0% numbers against 74.3%, 23.3% missing against 18.4%.
+**The missing-value legend carries over within the compendium.** Across 473,293
+cells of unseen chapters the proportions sit close to those in the chapters the
+code was written against: 69.4% numbers against 74.3%, 24.0% missing against
+18.4%.
 
 **Resolving the Gregorian year does not carry over.** `eradate` reads the year
 out of a parenthesised suffix, which 98.2% of this compendium's row labels carry
@@ -128,14 +129,14 @@ printed year on all 59 labelled pairs in the yearbook and all 117 checkable
 labels here. It is simply not needed for this corpus.
 
 **Section handling is more specialised than it looks.** 11 of our 50 tables are
-stacked, but only 20 of the other 582. Education, health and welfare had their
+stacked, but only 20 of the other 599. Education, hygiene and welfare had their
 categories reorganised repeatedly across fifty years, and the compilers cut such
 tables into parts rather than merge them. The three chapters that motivated this
 machinery are the three that need it most; on the rest of the book it does
 nothing.
 
-**One shape is out of scope entirely.** 151 of the 632 sections in the unseen
-chapters — 23.9% — are cross-sectional snapshots with no dated rows at all, such
+**One shape is out of scope entirely.** 152 of the 649 sections in the unseen
+chapters — 23.4% — are cross-sectional snapshots with no dated rows at all, such
 as a staffing table whose rows are job titles. The schema here begins with a
 year, so these are refused rather than mangled. A quarter of the compendium
 cannot be represented by this data model, and that is worth knowing before
@@ -161,7 +162,7 @@ have been written by hand since.
 **Stacked sections went undetected.** Eleven of the fifty files contain several
 tables one below another. Before this was noticed, two education tables had
 their Taiwanese and Japanese populations merged into single series. Value-level
-verification could not catch it: every number was correct, and only their
+verification could not catch it: every number was correct, and only its
 attribution was wrong. The compilers had in fact documented the practice —
 clause 7 of their notes says that categories which could not be merged were "cut
 into several parts and listed separately" — which is a reminder that reading the
@@ -175,18 +176,19 @@ never read. Both are fixed; the second now raises rather than passing quietly.
 
 **A full stop defeated section detection.** Stacked tables are marked `1.本省人`.
 The detector required an ASCII period; the compilers also used the full-width
-U+FF0E, `１．官等`, and in print the two are one character. 33 of the 582 unseen
-tables had their sections merged as a result — the same failure as above, again
-invisible to any check on values. None of the 33 is in the chapters used here,
-which is exactly why it survived.
+U+FF0E, `１．官等`, and in print the two are the same character. 117 markers in
+102 of the 599 unseen tables went unread, and in 6 of those files that merged
+two sections into one — the same failure as above, again invisible to any check
+on values. None of the 102 is in the chapters used here, which is exactly why it
+survived.
 
 **The brace pattern matched one spelling out of several.** A figure spanning
 several printed columns is set inside a drawn brace which the digitisation kept
 in the cell. The pattern matched `└─42─┘` but not `┌─1─┐`, `└──126──┘` or
 `└───────76───────┘`, and those figures were discarded as unreadable. Unlike the
-one above, this was not confined to the unseen chapters: **102 figures in the
-published corpus were being thrown away.** No value was wrong, so verification
-passed; the values simply were not there.
+one above, this was not confined to the unseen chapters: **98 figures in the
+published corpus were being thrown away**, and `data/tidy.csv` gains 102 rows.
+No value was wrong, so verification passed; the values simply were not there.
 
 ## What is not verified
 

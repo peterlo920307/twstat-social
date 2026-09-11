@@ -1,9 +1,8 @@
 """Column specifications for the 1946 Taiwan statistical compendium.
 
 Each entry maps spreadsheet columns of one file section to the two dimensions
-that describe them. Written by hand from the printed layout; every entry is
-machine-proposed and awaits independent human checking (see
-docs/validation_plan.md).
+that describe them. Written by hand from the printed layout by one reader; no
+entry has been checked by a second (see docs/CODING_SHEET.md).
 """
 
 from __future__ import annotations

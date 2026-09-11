@@ -7,7 +7,7 @@ second coder needs; they do not have to read anything else in the repository.
 
 Every number in `data/tidy.csv` has already been checked against the cell it came
 from, mechanically and completely, so transcription is not in question. What is
-in question is the **labels**: whether `dim1` and `dim2` say what the printed
+in question is the labelling: whether `dim1` and `dim2` say what the printed
 table says they say.
 
 That cannot be checked mechanically. In these tables a label's characters are
@@ -64,7 +64,7 @@ genuinely ambiguous, rather than that the two of you were using different rules.
 5. **Copy the characters as printed.** Do not translate, do not modernise, do not
    normalise variant forms.
 6. **Code the column, not the number.** 33 of the 195 cells are blank because the
-   figure was never collected. Those rows are coded exactly like the rest — the
+   figure was not surveyed or was unknown. Those are coded like the rest — the
    heading is still printed above them. The value is shown only to help you
    confirm you are looking at the right cell.
 
@@ -107,5 +107,6 @@ Use `--size` and `--seed` for a different draw, and say which you used.
 ## Status
 
 **Not yet done.** No second coder has been found. Until this exercise is carried
-out, `dim1` and `dim2` in the published dataset are machine-proposed and unverified,
-and the README, the codebook and `DESIGN.md` all say so.
+out, `dim1` and `dim2` in the published dataset have been read off the printed
+layout by one person and checked by nobody, and the README, the codebook and
+`DESIGN.md` all say so.

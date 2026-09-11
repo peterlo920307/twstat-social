@@ -29,7 +29,7 @@ class Flag(str, Enum):
     """Printed as ``0``, meaning a quantity below one unit. Left-censored."""
 
     BRACKET_ARTIFACT = "bracket_artifact"
-    """Printed as ``└─N─┘``, a typesetting mark for a value spanning rows."""
+    """Printed as ``└─N─┘``, a mark for a value spanning printed columns."""
 
     NON_NUMERIC = "non_numeric"
     """Text where a number was expected, usually a stray note."""
@@ -56,7 +56,7 @@ _MISSING = {".", "．", "…", "‥", "-", "－", "―", "─", ""}
 # the number can be wrapped as └─42─┘, ┌──126──┐, └───────76───────┘, or with a
 # single corner on one side only. Matching one of those spellings and not the
 # others discards figures: the narrow pattern used until docs/W06_layout.md lost
-# 121 values in the published corpus alone.
+# 102 values in the published corpus alone.
 _BRACE = re.compile(r"^[┌└├┐┘┤│]?[─—]*\s*(.+?)\s*[─—]*[┌└├┐┘┤│]?$")
 _BRACE_CHARS = "┌└├┐┘┤│─—"
 

@@ -25,10 +25,10 @@ __all__ = ["Section", "clean", "find", "header_rows"]
 
 # A section marker is a number, a full stop and a label: "1.本省人". The stop is
 # written both as an ASCII period and as the full-width U+FF0E, and the two are
-# indistinguishable in print. Accepting only the ASCII form silently merged the
-# sections of 33 of the 353 tables tested in docs/W06_layout.md. None of those
-# tables is in the three chapters this package was written against, which is why
-# the omission survived for as long as it did.
+# indistinguishable in print. Accepting only the ASCII form missed 117 markers
+# across 102 of the 599 tables tested in docs/W06_layout.md, and in 6 of those
+# files it merged two sections into one. None of them is in the three chapters
+# this package was written against, which is why it survived as long as it did.
 _MARKER = re.compile(r"^\d+[.．][^\d]")
 
 

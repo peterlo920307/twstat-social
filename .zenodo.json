@@ -4,16 +4,26 @@
   "publication_date": "TODO-YYYY-MM-DD",
   "creators": [
     {
-      "name": "TODO-Family, Given",
+      "name": "Lo, Yu-Cheng",
       "affiliation": "TODO-Department, University",
       "orcid": "TODO-0000-0000-0000-0000"
     }
   ],
-  "description": "<p>TODO: 100-150 words. Must be original prose, NOT copied from the source website.</p><p>Cover: what the data are (50 statistical tables on education, health services and poor relief in Japanese colonial Taiwan), the source (Taiwan Provincial Administrative Executive Office, 1946, digitised by Academia Sinica), what was done (converted from legacy .xls into tidy long format with normalised era-dating, standardised missing-value codes, and cell-level provenance), and reuse potential.</p>",
+  "contributors": [
+    {
+      "name": "Institute of Information Science, Academia Sinica",
+      "type": "DataCurator"
+    },
+    {
+      "name": "Statistical Office, Taiwan Provincial Administrative Executive Office",
+      "type": "Other"
+    }
+  ],
+  "description": "<p>Fifty statistical tables on education, health services and poor relief in Japanese colonial Taiwan, covering 1897 to 1945, converted from layout-preserving legacy spreadsheets into tidy long-format data.</p><p>The source is the Taiwan Province Statistical Abstract for the Past Fifty-One Years, compiled in 1946 by the Statistical Office of the Taiwan Provincial Administrative Executive Office from 1,207 colonial publications, and digitised by the Institute of Information Science, Academia Sinica, in 2006.</p><p>Each of the 36,672 rows carries one observation together with the spreadsheet cell it was read from, so every value can be checked against its source rather than sampled. Era dates are resolved to Gregorian years, and the reporting convention is kept as a separate field: over 60% of the observations are dated on a fiscal rather than a calendar basis, and merging the two produces a series that looks continuous and is wrong. The compilers' own missing-value legend is preserved, including their rule that a printed zero means a quantity below one unit.</p>",
   "access_right": "open",
   "license": "cc-by-4.0",
   "language": "zho",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "keywords": [
     "colonial Taiwan",
     "historical statistics",
@@ -25,7 +35,7 @@
   "dates": [
     {"type": "Collected", "start": "1895-01-01", "end": "1945-12-31"}
   ],
-  "method": "TODO: brief statement of the transcription and validation procedure; mirror the Method section of the data paper.",
+  "method": "Column meanings were written by hand, one specification per table section, after an automated attempt at reconstructing the printed headers produced labels that looked plausible and were wrong. Values were then extracted programmatically, and every one was re-read from its recorded source cell and compared: 28,667 values checked, no mismatches. That check covers transcription only. Whether each column is labelled with what the printed table says it means has not been confirmed by a second reader; a blank coding sheet and the inter-coder agreement procedure are included in the deposit, and the dimension labels should be treated as proposed until that work is done.",
   "related_identifiers": [
     {
       "identifier": "http://twstudy.iis.sinica.edu.tw/twstatistic50/",
@@ -33,5 +43,5 @@
       "resource_type": "dataset"
     }
   ],
-  "notes": "Underlying source is a 1946 government publication and is not subject to copyright under Article 9 of the Copyright Act (Taiwan). The values reproduced here are facts. TODO: confirm wording with your institution."
+  "notes": "The underlying source is a 1946 government publication and is not subject to copyright under Article 9 of the Copyright Act (Taiwan); the values reproduced here are facts. The source spreadsheets are not redistributed: scripts/download_raw.py fetches them from Academia Sinica. Software in this archive is licensed MIT (LICENSE); data and documentation are CC BY 4.0 (LICENSE-DATA)."
 }

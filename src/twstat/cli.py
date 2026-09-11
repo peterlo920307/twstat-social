@@ -32,7 +32,12 @@ def main(argv: list[str] | None = None) -> int:
     sample = sub.add_parser("sample", help="draw a blank coding sheet for a human coder")
     sample.add_argument("tidy", type=Path, help="the extracted CSV")
     sample.add_argument("output", type=Path, help="destination CSV")
-    sample.add_argument("--size", type=int, default=200, help="rows to draw (default 200)")
+    sample.add_argument(
+        "--size",
+        type=int,
+        default=200,
+        help="rows to draw before stratification trims (default 200)",
+    )
     sample.add_argument("--seed", type=int, default=20260909, help="random seed")
 
     args = parser.parse_args(argv)
@@ -40,7 +45,7 @@ def main(argv: list[str] | None = None) -> int:
     import pandas as pd
 
     from .corpus1946 import build as build_specs
-    from .extract import extract_corpus
+    from .extract import SPREADSHEET_SUFFIXES, extract_corpus
     from .notes import extract_notes
     from .sampling import coding_sheet
     from .verify import verify
@@ -63,7 +68,8 @@ def main(argv: list[str] | None = None) -> int:
         if mismatches:
             for item in mismatches[:20]:
                 print(f"{item.table_id} r{item.src_row} c{item.src_col}: {item.reason}")
-            print(f"{len(mismatches)} mismatches out of {checked:,}", file=sys.stderr)
+            plural = "" if len(mismatches) == 1 else "es"
+            print(f"{len(mismatches)} mismatch{plural} out of {checked:,}", file=sys.stderr)
             return 1
         print(f"{checked:,} values checked, no mismatches")
         return 0
@@ -78,7 +84,13 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
 
-    rows = [note for path in sorted(Path(args.raw).glob("*.xls")) for note in extract_notes(path)]
+    # Both suffixes, for the third time. The same narrowing was fixed in verify
+    # and then in extract_corpus, and it survived here because no test called
+    # this command with a directory of .xlsx files.
+    paths = sorted(
+        path for suffix in SPREADSHEET_SUFFIXES for path in Path(args.raw).glob(f"*{suffix}")
+    )
+    rows = [note for path in paths for note in extract_notes(path)]
     pd.DataFrame(rows).to_csv(args.output, index=False, encoding="utf-8-sig")
     print(f"{args.output}: {len(rows)} notes from {len({r.file for r in rows})} files")
     return 0

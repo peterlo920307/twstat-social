@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use this software or the dataset it produces, please cite it as below."
+type: software
+title: "twstat: recovering tidy data from legacy East Asian statistical tables"
+abstract: >-
+  A Python package and derived dataset that convert the education, health
+  services and poor relief chapters of the Taiwan Province Statistical Abstract
+  for the Past Fifty-One Years (1946) from layout-preserving legacy spreadsheets
+  into tidy long-format data, with era dates resolved to Gregorian years, the
+  reporting convention kept as a separate field, the compilers' own
+  missing-value legend preserved, and every value carrying the spreadsheet cell
+  it was read from.
+authors:
+  - family-names: Lo
+    given-names: Yu-Cheng
+version: 0.1.0
+license: MIT
+repository-code: "https://github.com/peterlo920307/twstat-social"
+keywords:
+  - digital humanities
+  - historical statistics
+  - data rescue
+  - colonial Taiwan
+  - history of education
+  - history of public health
+references:
+  - type: dataset
+    title: "臺灣省五十一年來統計提要 (Taiwan Province Statistical Abstract for the Past Fifty-One Years)"
+    year: 2006
+    authors:
+      - name: "Institute of Information Science, Academia Sinica"
+    url: "http://twstudy.iis.sinica.edu.tw/twstatistic50/"
+    notes: >-
+      Digitisation of the 1946 compendium compiled by the Statistical Office of
+      the Taiwan Provincial Administrative Executive Office. Source of the raw
+      spreadsheets, which are not redistributed here.

@@ -2,7 +2,7 @@ Creative Commons Attribution 4.0 International (CC BY 4.0)
 https://creativecommons.org/licenses/by/4.0/legalcode
 
 適用範圍：data/ 與 docs/ 之資料與文件。
-程式碼（scripts/）另依 MIT License 授權，見 LICENSE。
+程式碼（src/twstat/、tests/、scripts/）另依 MIT License 授權，見 LICENSE。
 
 資料來源說明
 ------------

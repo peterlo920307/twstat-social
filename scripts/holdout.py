@@ -68,8 +68,13 @@ def download(out):
 
 def measure(out):
     """Report what section detection and cell interpretation make of the files."""
+    # Case-insensitively: 17 of the 599 tables are named .XLS, and a
+    # case-sensitive filter dropped them from every measurement while the
+    # download reported success.
     paths = sorted(
-        os.path.join(out, name) for name in os.listdir(out) if name.endswith((".xls", ".xlsx"))
+        os.path.join(out, name)
+        for name in os.listdir(out)
+        if name.lower().endswith((".xls", ".xlsx"))
     )
     per_file = collections.Counter()
     flags = collections.Counter()

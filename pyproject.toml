@@ -4,39 +4,78 @@ build-backend = "hatchling.build"
 
 [project]
 name = "twstat"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Recover tidy data from legacy East Asian statistical tables"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-license-files = ["LICENSE"]
+license-files = ["LICENSE", "LICENSE-DATA"]
 authors = [{ name = "Lo Yu Cheng" }]
 keywords = ["digital humanities", "historical statistics", "taiwan", "data rescue", "spreadsheets"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
+  "Intended Audience :: Education",
+  "Natural Language :: Chinese (Traditional)",
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: Scientific/Engineering :: Information Analysis",
   "Topic :: Text Processing :: Markup",
+  "Typing :: Typed",
 ]
-dependencies = ["pandas>=2.0", "xlrd>=2.0", "openpyxl>=3.1"]
+dependencies = ["pandas>=2.0,<3", "xlrd>=2.0,<3", "openpyxl>=3.1,<4"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.6", "mypy>=1.10", "pandas-stubs"]
+dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.6", "mypy>=1.10", "pandas-stubs>=2.0"]
 
 [project.urls]
 Homepage = "https://github.com/peterlo920307/twstat-social"
+Documentation = "https://github.com/peterlo920307/twstat-social/blob/main/docs/README.md"
+Repository = "https://github.com/peterlo920307/twstat-social"
+Changelog = "https://github.com/peterlo920307/twstat-social/blob/main/CHANGELOG.md"
 Issues = "https://github.com/peterlo920307/twstat-social/issues"
 
 [project.scripts]
 twstat = "twstat.cli:main"
 
+[tool.hatch.build.targets.sdist]
+# Hatchling would otherwise sweep in everything git tracks, which means 2.7 MB of
+# data and forty Chinese working notes. The investigation record belongs in the
+# repository and in the Zenodo deposit, not in a package a reader pip-installs.
+# docs/twstat50_tables.json stays because the download scripts cannot run
+# without it, and data/ stays because tests/test_published_data.py checks it.
+include = [
+  "/src",
+  "/tests",
+  "/scripts",
+  "/data",
+  "/README.md",
+  "/CHANGELOG.md",
+  "/CONTRIBUTING.md",
+  "/CITATION.cff",
+  "/LICENSE",
+  "/LICENSE-DATA",
+  "/docs/README.md",
+  "/docs/CODEBOOK.md",
+  "/docs/CODING_SHEET.md",
+  "/docs/DESIGN.md",
+  "/docs/EXAMPLE.md",
+  "/docs/bias_statement.md",
+  "/docs/twstat50_tables.json",
+]
+
+[tool.hatch.version]
+path = "src/twstat/__init__.py"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/twstat"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "src/twstat"]
 addopts = "--doctest-modules --strict-markers"
 markers = ["corpus: requires the source .xls files (run scripts/download_raw.py)"]
 

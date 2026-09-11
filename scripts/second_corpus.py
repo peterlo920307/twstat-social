@@ -201,7 +201,7 @@ def check_own_corpus(raw):
     cells = japanese_hits = 0
     labels = collections.Counter()
     for name in sorted(os.listdir(raw)):
-        if not name.endswith((".xls", ".xlsx")):
+        if not name.lower().endswith((".xls", ".xlsx")):
             continue
         frame = pd.read_excel(os.path.join(raw, name), header=None)
         for row in range(len(frame)):

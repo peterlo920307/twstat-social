@@ -39,7 +39,7 @@ In order. Each entry is the record of one working session.
 | | |
 |---|---|
 | [`W05_generalisation.md`](W05_generalisation.md) | The era parser against two external corpora. The period taxonomy carries over; resolving the Gregorian year does not. Two claims the module made about itself were false |
-| [`W06_layout.md`](W06_layout.md) | Section detection and cell interpretation against the compendium's other 582 tables. Two bugs, one of which was discarding 102 figures from the published corpus |
+| [`W06_layout.md`](W06_layout.md) | Section detection and cell interpretation against the compendium's other 599 tables. Two bugs, one of which was discarding 98 figures from the published corpus |
 
 Both are reproduced by `scripts/second_corpus.py` and `scripts/holdout.py`.
 
