@@ -90,3 +90,50 @@ def test_the_full_precision_values_are_the_documented_ratio_columns(tidy):
     long = values[values["value"].map(places) > 4]
     assert set(long["table_id"]) == {"Mt480", "Mt481", "Mt482"}
     assert long.groupby(["table_id", "src_col"]).ngroups == 21
+
+
+ROOT = DATA.parent
+
+
+def test_the_readme_headline_is_the_data(tidy):
+    # These figures have gone stale in the prose four times, each time a reading
+    # rule changed and the data moved without the sentence that describes it.
+    import re
+
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    found = re.search(
+        r"\*\*([\d,]+) rows, ([\d,]+) values, (\d+) tables,\s*(\d{4})–(\d{4})", readme
+    )
+    assert found, "README no longer states its headline figures in the expected form"
+    rows, values, tables, first, last = found.groups()
+    assert int(rows.replace(",", "")) == len(tidy)
+    assert int(values.replace(",", "")) == int(tidy["value"].notna().sum())
+    assert int(tables) == tidy["table_id"].nunique()
+    assert (int(first), int(last)) == (tidy["year"].min(), tidy["year"].max())
+
+
+def test_the_codebook_table_list_is_the_data(tidy):
+    import re
+
+    codebook = (ROOT / "docs" / "CODEBOOK.md").read_text(encoding="utf-8")
+    listed = re.findall(r"^\| (Mt[\d-]+) \| .*? \| \d+×\d+ \| (.*?) \| (\d+) \|$", codebook, re.M)
+    assert len(listed) == 50
+    for table_id, span, count in listed:
+        years = tidy.loc[tidy["table_id"] == table_id, "year"].unique()
+        if span == "橫斷面":
+            assert len(years) == 0, table_id
+            continue
+        assert span == f"{years.min()}–{years.max()}", table_id
+        assert int(count) == len(years), table_id
+
+
+def test_the_codebook_flag_counts_are_the_data(tidy):
+    import re
+
+    codebook = (ROOT / "docs" / "CODEBOOK.md").read_text(encoding="utf-8")
+    counts = dict(re.findall(r"^\| `(\w+)` \| .*\| ([\d,]+) \|$", codebook, re.M))
+    blank = re.search(r"^\| （空） \| 數字 \| 一般數值 \| ([\d,]+) \|$", codebook, re.M)
+    actual = tidy["flag"].value_counts()
+    for flag in ("missing", "less_than_one_unit", "bracket_artifact"):
+        assert int(counts[flag].replace(",", "")) == actual.get(flag, 0), flag
+    assert blank and int(blank.group(1).replace(",", "")) == int(tidy["flag"].isna().sum())
