@@ -19,7 +19,7 @@
 ## 執行順序（順序不可顛倒）
 1. **先完成資料整理與驗證**（tidy CSV + CODEBOOK.md + 驗證報告）
 2. 打包上傳 Zenodo：
-   - `data/` tidy.csv、notes.csv、validation_sample.csv（皆 UTF-8）
+   - `data/` tidy.csv、notes.csv、note_items.csv、validation_sample.csv（皆 UTF-8）
    - **`raw/` 不重新散布**：原始 .xls 為中研院 2006 年數位化成果，
      改附 `scripts/download_raw.py` 供他人自行取得（見 DESIGN.md §10）
    - `docs/` CODEBOOK.md、DESIGN.md、EXAMPLE.md、bias_statement.md、
@@ -29,6 +29,20 @@
    - `.zenodo.json`、README、LICENSE（MIT）、LICENSE-DATA（CC BY 4.0）
 3. **取得 DOI**
 4. **再投稿 JOHD** —— 投稿前無 DOI 會被直接退稿
+
+## 發布的實際步驟（2026-09-11 起已自動化）
+Zenodo 的 GitHub 整合會把每個 GitHub Release 自動存檔並給 DOI，
+而 `.github/workflows/release.yml` 在推送版本標籤時建立 Release。所以發布只剩：
+
+1. 在 Zenodo 登入 GitHub 帳號，於 GitHub 設定頁**開啟本 repo 的存檔**（repo 須為公開）
+2. 填完 `.zenodo.json` 與 `CITATION.cff` 的作者、ORCID、日期
+3. 把 `CHANGELOG.md` 的 `## 0.1.0 — unreleased` 改成實際日期並提交
+   （workflow 看到 unreleased 會拒絕發布）
+4. `git tag v0.1.0 && git push origin v0.1.0`
+
+workflow 會檢查標籤與 `twstat.__version__` 一致、跑測試、打包，
+並建立附有套件與 `data/` 各 CSV 的 Release，說明文字取自 CHANGELOG 該版條目。
+Zenodo 隨即存檔並發 DOI；把 DOI 補回 README、`CITATION.cff` 與投稿稿件。
 
 ## 版本策略
 - `1.0.0` = 教育 17 表（v0.1 先行版可用 `0.1.0`）

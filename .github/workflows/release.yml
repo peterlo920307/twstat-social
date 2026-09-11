@@ -1,0 +1,61 @@
+name: release
+
+# Runs only when a version tag is pushed:
+#     git tag v0.1.0 && git push origin v0.1.0
+# Nothing here publishes to PyPI. It makes a GitHub release, which is also what
+# Zenodo's GitHub integration archives, so tag only when the data is final.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: pip install -e ".[dev]" build twine
+
+      - name: The tag has to name the version the package declares
+        run: |
+          declared=$(python -c "import twstat; print(twstat.__version__)")
+          test "v$declared" = "$GITHUB_REF_NAME" || {
+            echo "tag $GITHUB_REF_NAME but the package says $declared"; exit 1; }
+
+      - name: The changelog has to date this version
+        run: |
+          if grep -Eq "^## ${GITHUB_REF_NAME#v} .*unreleased" CHANGELOG.md; then
+            echo "CHANGELOG.md still calls ${GITHUB_REF_NAME#v} unreleased; date it first"; exit 1
+          fi
+
+      - name: Test
+        run: pytest -q -m "not corpus"
+
+      - name: Build
+        run: |
+          python -m build
+          twine check --strict dist/*
+
+      - name: Release notes are the changelog entry for this version
+        run: python scripts/changelog_entry.py "${GITHUB_REF_NAME#v}" > notes.md
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "twstat $GITHUB_REF_NAME" \
+            --notes-file notes.md \
+            dist/* data/tidy.csv data/notes.csv data/note_items.csv \
+            data/validation_sample.csv
