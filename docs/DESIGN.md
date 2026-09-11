@@ -10,12 +10,12 @@ Several were made twice, because the first version was wrong; those are marked.
 alternative is a tidy table with no provenance, which is what most published
 historical datasets are.
 
-The cost is real: the two columns are 7.4% of the file, and 36,752 rows of
-eleven columns is 2.8 MB.
+The cost is real: the two columns are 7.1% of the file, and 39,150 rows of
+eleven columns is 3.1 MB.
 
 They buy the one claim here that can be checked in full. `twstat verify`
 re-reads every value from its source cell and compares. Not a sample, not an
-estimate — all 28,745 of them, and it currently reports no mismatches. A dataset
+estimate — all 30,640 of them, and it currently reports no mismatches. A dataset
 that says "we checked 200 rows and found two errors" is telling you about its
 sample. Without provenance, complete verification is not possible at all, and a
 reader disputing one figure has no way to reach the cell behind it.
@@ -32,9 +32,9 @@ published data; no table here is dated by academic year. A fiscal year runs
 year, both by clause 12 of the compilers' own notes.
 
 The alternative — and it is what everyone else does — is to put the year in the
-year column and mention the convention in prose. Only 37% of the observations
-here are dated by a plain calendar year: 39% are fiscal and 24% are year-end.
-Flattening the other 63% into a calendar series produces something that looks
+year column and mention the convention in prose. Only 41% of the observations
+here are dated by a plain calendar year: 37% are fiscal and 22% are year-end.
+Flattening the other 59% into a calendar series produces something that looks
 continuous and is wrong by up to a year in places, and nothing downstream can
 detect it.
 

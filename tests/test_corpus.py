@@ -23,7 +23,7 @@ def test_expected_shape(tidy):
     # the changelog. The last three: the brace pattern was widened, footnote
     # markers stopped disqualifying a figure, and three health tables were split
     # into the header bands they actually contain.
-    assert len(tidy) == 36_752
+    assert len(tidy) == 39_150
     assert tidy["table_id"].nunique() == 48
     assert tidy.groupby(["table_id", "section"]).ngroups == 78
 

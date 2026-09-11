@@ -42,7 +42,7 @@ Throughout, it reported no mismatches — correctly. Every number was read from
 the right cell and transcribed exactly. Only the label was wrong, and a check on
 values cannot see a label.
 
-This is the failure `docs/D15_section_bug.md` recorded in 2026, written up in
+This is the failure `docs/D15_section_bug.md` recorded the day before, written up in
 `DESIGN.md` §5 as the general lesson, and demonstrated deliberately in
 `EXAMPLE.md` §6. It happened again anyway, in a form the earlier fix did not
 cover: D15 was about *numbered* stacking, `1.本省人` / `2.日本人`, and the fix
@@ -118,7 +118,7 @@ structural check and it is the one that was missing: the project had a complete
 check of values and no check at all of whether two rows were claiming to describe
 the same thing.
 
-## What is still wrong in these tables
+## A second defect in the same tables, fixed the same day
 
 `Mt487-2` and `Mt489` encode a second dimension in the row stub, pairing each
 year across two rows:
@@ -128,11 +128,14 @@ row 10  '民國  二  十年(1931)┌患者'   17025  762  46 …
 row 11  '                   └死亡'    1326  154   4 …
 ```
 
-Only the first row carries a year, so `extract_file` skips the second and **about
-1,900 figures are silently discarded**. The rows that survive are cases only, and
-nothing in the schema says so, so a reader taking `Mt487-2 / 傷寒 / 1931 = 762`
-has no way to know that 154 deaths exist in the source and were dropped.
+Only the first row carried a year, so `extract_file` skipped the second and
+**1,895 figures were silently discarded**. The rows that survived were cases only,
+and nothing in the schema said so, so a reader taking `Mt487-2 / 傷寒 / 1931 = 762`
+had no way to know that 154 deaths existed in the source and had been dropped.
 
-Fixing it means carrying the year forward across a continuation row and giving
-the pair its own dimension. That is a schema change and it is not done. Until it
-is, these two tables are case counts, and `docs/bias_statement.md` says so.
+The fix carries the year from the first row of a pair to the rows it joins, and
+writes the word after the brace — 患者 or 死亡 — into `dim2`, which these two
+tables had deliberately left empty, so the schema does not change. An orphan
+`└` row with no opening row above it is not given a year. 39,150 rows and 30,640
+values after both fixes; verification still reports no mismatches, and no key
+carries two values.

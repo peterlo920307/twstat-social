@@ -109,3 +109,13 @@ figures they were discarding.
   `less_than_one_unit` now marks one cell, in Mt502.
 - Section labels had a private-use character left by the 2006 digitisation,
   and a full-width marker stop was not stripped from them.
+
+### Fixed, recovered figures
+- Mt487-2 and Mt489 split each year across two rows, `┌患者` and `└死亡`, with
+  the year printed only on the first. The second row was skipped, **1,895
+  figures were discarded**, and the surviving rows were case counts with nothing
+  in the schema to say so. The year is now carried to the row a brace joins, and
+  患者 or 死亡 goes into `dim2`, which these tables had left empty. An orphan
+  `└` row is not given a year. This closes the "Known, not fixed" entry above.
+- `data/tidy.csv`: 36,752 to 39,150 rows, 28,745 to 30,640 values. The shares of
+  period types move with it: 41% calendar year, 37% fiscal, 22% year end.

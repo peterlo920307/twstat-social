@@ -20,6 +20,15 @@ from .values import parse as parse_value
 # printed as (1093). Correct it with SpecBook.correct_year, or fix the parser.
 _LOOKS_DATED = re.compile(r"[(（]\s*\d{3,5}\s*[)）]")
 
+# A year split across two rows by a brace drawn in the label column:
+#     民國  二  十年(1931)┌患者
+#                        └死亡
+# Only the first row carries the year. The second used to be skipped because it
+# had none, which discarded about 1,900 figures from Mt487-2 and Mt489 and left
+# the survivors as case counts with nothing in the schema saying so. The word
+# after the brace is a second dimension of the row, and goes into dim2.
+_STUB = re.compile(r"([┌├└])\s*(\S+)\s*$")
+
 # Unassigned private-use characters left by the 2006 digitisation. They render
 # as a missing glyph and carry nothing.
 _PRIVATE_USE = re.compile(r"[\ue000-\uf8ff]")
@@ -58,6 +67,13 @@ class Observation:
     src_col: int
 
 
+def _join(column: str | None, row: str | None) -> str | None:
+    """Combine a column's second dimension with one read from the row label."""
+    if column and row:
+        return f"{column}·{row}"
+    return column or row
+
+
 def _dim2(column_spec, bottom: dict[int, str | None], column: int) -> str | None:
     """Resolve the second dimension, preferring an explicit specification."""
     if column_spec.dim2 is not None:
@@ -92,19 +108,32 @@ def extract_file(path: str | Path, spec: SpecBook, table_id: str | None = None) 
             else {}
         )
         label = _PRIVATE_USE.sub("", section.label or "").lstrip("0123456789.．").strip()
+        carried = None
         for row in range(first, section.end):
-            date = parse_date(frame.iat[row, 0])
+            text = frame.iat[row, 0]
+            date = parse_date(text)
             corrected = spec.corrected_year(stem, row + 1)
             if corrected is not None:
                 date = replace(date, year=corrected)
-            if date.year is None:
-                text = str(frame.iat[row, 0])
-                if date.period is not None and _LOOKS_DATED.search(text):
+            stub = _STUB.search(text) if isinstance(text, str) else None
+            if date.year is not None:
+                # A dated row opening a brace lends its date to the rows it joins.
+                carried = date if stub and stub.group(1) == "┌" else None
+            elif stub and stub.group(1) in "├└" and carried is not None:
+                date = carried
+                if stub.group(1) == "└":
+                    carried = None
+            else:
+                carried = None
+                if date.period is not None and _LOOKS_DATED.search(str(text)):
                     raise ValueError(
-                        f"{stem} row {row + 1}: {text.strip()!r} looks dated but gives "
-                        "no year; record the right one with SpecBook.correct_year"
+                        f"{stem} row {row + 1}: {str(text).strip()!r} looks dated but "
+                        "gives no year; record the right one with SpecBook.correct_year"
                     )
                 continue
+            # carried is only ever taken from a row that had a year.
+            assert date.year is not None
+            row_dim = stub.group(2) if stub else None
             for column, column_spec in section_spec.columns.items():
                 index = column - 1
                 if index >= frame.shape[1]:
@@ -123,7 +152,7 @@ def extract_file(path: str | Path, spec: SpecBook, table_id: str | None = None) 
                         year=date.year,
                         period_type=date.period.value if date.period else None,
                         dim1=column_spec.dim1,
-                        dim2=_dim2(column_spec, bottom, column),
+                        dim2=_join(_dim2(column_spec, bottom, column), row_dim),
                         value=value.number,
                         flag=value.flag.value if value.flag else None,
                         src_row=row + 1,

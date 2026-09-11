@@ -38,7 +38,7 @@ what makes the result checkable: every number can be read back from the source
 and compared, so the claim is a complete check rather than an accuracy estimate.
 
 For the three sections of the compendium processed here — education, health
-services and poor relief — that is **36,752 rows, 28,745 values, 48 tables,
+services and poor relief — that is **39,150 rows, 30,640 values, 48 tables,
 1897–1945, and no mismatches**.
 
 ## Install

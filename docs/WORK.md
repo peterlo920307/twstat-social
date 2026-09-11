@@ -27,7 +27,7 @@ Status: [ ] open · [x] done · [!] dropped, with a reason
 Eight parallel reviews of the code, data, tests, packaging, scripts and prose.
 What they found that is fixed is in the changelog; this is what is not.
 
-- [ ] R01 **Mt487-2 and Mt489 discard about 1,900 figures.** Each year is paired
+- [x] R01 **Mt487-2 and Mt489 discard about 1,900 figures.** Each year is paired
       across two rows, `┌患者` and `└死亡`, and only the first carries a year, so
       the death row is skipped. Needs the year carried across a continuation row
       and a row-level dimension in the schema. `bias_statement.md` B7.

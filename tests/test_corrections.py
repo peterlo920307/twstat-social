@@ -83,3 +83,66 @@ def test_the_section_label_loses_its_marker_and_any_private_use_characters(tmp_p
     book = SpecBook()
     book.define(path.stem, 1, [(2, 2, "人數")])
     assert extract_file(path, book)["section_label"].tolist() == ["民國二十年至三十一年(2)"]
+
+
+@pytest.fixture
+def paired(tmp_path):
+    # The layout of Mt487-2 and Mt489: each year split across two rows by a
+    # brace in the label column, only the first carrying the year.
+    return _sheet(
+        tmp_path,
+        "Test_Mt976.xlsx",
+        [
+            ["表976 患者死亡測試", None, None],
+            [None, "傷寒", "赤痢"],
+            ["民國  二  十年(1931)┌患者", 762, 46],
+            ["                   └死亡", 154, "."],
+            ["      二十一年(1932)┌患者", 667, 60],
+            ["                   └死亡", 128, 4],
+        ],
+    )
+
+
+def test_the_second_row_of_a_pair_takes_the_year_of_the_first(paired):
+    book = SpecBook()
+    book.define("Test_Mt976", 1, [(2, 2, "傷寒"), (3, 3, "赤痢")], {2: "", 3: ""})
+    tidy = extract_file(paired, book)
+    typhoid = tidy[tidy["dim1"] == "傷寒"].set_index(["year", "dim2"])["value"]
+    assert typhoid.to_dict() == {
+        (1931, "患者"): 762.0,
+        (1931, "死亡"): 154.0,
+        (1932, "患者"): 667.0,
+        (1932, "死亡"): 128.0,
+    }
+
+
+def test_a_missing_figure_in_the_second_row_keeps_its_row(paired):
+    book = SpecBook()
+    book.define("Test_Mt976", 1, [(2, 2, "傷寒"), (3, 3, "赤痢")], {2: "", 3: ""})
+    tidy = extract_file(paired, book)
+    row = tidy[(tidy["dim1"] == "赤痢") & (tidy["year"] == 1931) & (tidy["dim2"] == "死亡")]
+    assert row["flag"].tolist() == ["missing"]
+
+
+def test_a_braced_row_with_nothing_before_it_is_not_given_a_year(tmp_path):
+    # An orphan └ row must not borrow a date from further up the sheet.
+    path = _sheet(
+        tmp_path,
+        "Test_Mt975.xlsx",
+        [
+            ["表975", None],
+            [None, "人數"],
+            ["十 一 年(1922)", 5],
+            ["        └死亡", 1],
+        ],
+    )
+    book = SpecBook()
+    book.define("Test_Mt975", 1, [(2, 2, "人數")])
+    assert extract_file(path, book)["year"].tolist() == [1922]
+
+
+def test_a_row_dimension_joins_a_column_one_rather_than_replacing_it(paired):
+    book = SpecBook()
+    book.define("Test_Mt976", 1, [(2, 2, "傷寒")], {2: "本省人"})
+    tidy = extract_file(paired, book)
+    assert set(tidy["dim2"]) == {"本省人·患者", "本省人·死亡"}
