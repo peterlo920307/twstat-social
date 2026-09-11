@@ -11,7 +11,8 @@ redistributed here.
 
 The published dataset uses 48 of the 50 tables in three chapters of the 1946
 compendium: education, hygiene, welfare. The other two are cross-sectional and
-are excluded. The compendium has 24 chapters and 634 tables. The
+are excluded. The compendium has 24 chapters and, by its compilers' count, 540 tables, which
+the digitisation holds as 649 files. The
 other 21 chapters — administration, agriculture, banking, climate, commerce,
 finance, fishing, forestry, animal husbandry, industry, justice, labour, land,
 mining, monopoly, police, population, post, railways, roads, shipping — were

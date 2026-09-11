@@ -45,7 +45,7 @@ colonial taiwan; historical statistics; education; public health; poor relief; d
 - **選錄範圍**：24 章中的 3 章 —— 教育（17 表）、衛生醫療保健（16 表）、
   各宗教及救助（17 表），共 **50 表**。選錄理由見 §4
 - **取得**：2026-09-09 全數下載成功（50/50，1.6 MB），全部可程式化解析
-- **處理**：Python；`normalize.py`（紀年與缺值）、`reshape.py`（多層表頭→長格式）
+- **處理**：Python 套件 `twstat`（`eradate` 紀年、`values` 缺值、`sections` 區段、`extract` 長格式、`verify` 全量回讀）
   【TODO】程式碼 repo 連結
 
 ## Sampling strategy
@@ -56,10 +56,10 @@ colonial taiwan; historical statistics; education; public health; poor relief; d
 原始檔的系統性問題（已量化）：
 | 問題 | 影響 |
 |---|---|
-| 缺值以「.」表示（非標準 NA） | 48 / 50 檔 |
+| 缺值以「.」表示（非標準 NA） | 47 / 50 檔 |
 | `└─N─┘` 跨欄合併偽影 | 10 / 50 檔 |
 | 多層中文表頭造成空白儲存格 | 平均 21% |
-| 民國／日本紀年混用、字間夾空白 | 全部 |
+| 民國紀年（含民國前）、字間夾空白；全書未見日本年號 | 全部 |
 
 處理與驗證：
 - 紀年正規化：2,440 個標記中自動解出 **2,221（91.0%）**，餘者人工判定

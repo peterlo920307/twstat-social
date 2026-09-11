@@ -25,10 +25,12 @@ find an entry that misreads a table, an issue naming the file, section and
 column is worth more than any amount of new code. See `docs/validation_plan.md`
 for how the checking is meant to work.
 
-**Other corpora.** The date parsing, section detection and value semantics were
-written for one 1946 compendium but describe conventions common to Japanese and
-Republican-era statistical publishing. Reports of where they break on other
-sources are welcome, with a sample.
+**Other corpora.** The code was written for one 1946 compendium. How far it
+carries has been measured rather than assumed: the reporting-period taxonomy
+holds on an independent Japanese source, resolving the Gregorian year does not,
+and section handling is mostly needed in the three chapters it was written for.
+`docs/W05_generalisation.md` and `docs/W06_layout.md` give the numbers. Reports
+of where it breaks on other sources are welcome, with a sample.
 
 ## Conventions
 
@@ -41,5 +43,5 @@ sources are welcome, with a sample.
 
 Open an issue with the file, section and column, what the source shows, and what
 the code produced. For questions about the data rather than the code, the
-codebook (`docs/CODEBOOK.md`) and the coverage notes
+codebook (`docs/CODEBOOK.md`) and the statement of what the data cannot support
 (`docs/bias_statement.md`) may already answer them.

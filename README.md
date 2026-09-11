@@ -37,8 +37,8 @@ One row per observation, carrying the cell it was read from. That last part is
 what makes the result checkable: every number can be read back from the source
 and compared, so the claim is a complete check rather than an accuracy estimate.
 
-For the three sections of the compendium processed here — education, health
-services and poor relief — that is **39,150 rows, 30,640 values, 48 tables,
+For the three chapters of the compendium processed here — education, hygiene
+and welfare — that is **39,150 rows, 30,640 values, 48 tables,
 1897–1945, and no mismatches**.
 
 ## Install
@@ -61,7 +61,7 @@ twstat sample data/tidy.csv sheet.csv    # a blank coding sheet for a human chec
 the sheet, write its specification, extract, verify, then break it and watch
 verification pass on a result missing half its rows. No download needed.
 
-Or as a library, against any similar corpus:
+Or as a library, against a source with the same dating and layout conventions:
 
 ```python
 from twstat import extract_corpus, verify
@@ -80,7 +80,7 @@ The package separates the parts that generalise from the part that does not.
 
 | Module | Concern |
 |---|---|
-| `eradate` | Era years and the four reporting conventions |
+| `eradate` | Era years and the reporting conventions |
 | `values` | Cell semantics, including the source's missing-value legend |
 | `sections` | Several tables stacked in one sheet |
 | `spec` | Which columns mean what |
@@ -90,7 +90,7 @@ The package separates the parts that generalise from the part that does not.
 | `sampling` | Coding sheets and inter-coder agreement |
 | `corpus1946` | The specifications for this particular compendium |
 
-Only `corpus1946` is about this particular compendium. How far the rest carries
+Only `corpus1946` is specific to the 1946 compendium. How far the rest carries
 over was tested rather than asserted, and the answer is mixed; see below.
 [`docs/DESIGN.md`](docs/DESIGN.md) sets out the eleven decisions behind the
 schema, the alternatives each was chosen over, and what each one costs.
@@ -120,9 +120,9 @@ code was written against: 69.4% numbers against 74.3%, 24.0% missing against
 18.4%.
 
 **Resolving the Gregorian year does not carry over.** `eradate` reads the year
-out of a parenthesised suffix, which 98.2% of this compendium's row labels carry
-and the yearbook never prints. On the yearbook it resolved **0 years out of
-33,116 labels**. It returns the period type and no year, which is the honest
+out of a parenthesised suffix, which 98.2% of this compendium's date-like row labels carry
+and the yearbook never prints. On the yearbook it resolved 0 years out of
+33,116 labels. It returns the period type and no year, which is the honest
 answer, but anyone reusing this on a source dated by era alone will have to add
 the arithmetic themselves. It is safe to do: the conversion agrees with the
 printed year on all 59 labelled pairs in the yearbook and all 117 checkable
@@ -139,8 +139,8 @@ nothing.
 chapters — 23.4% — are cross-sectional snapshots with no dated rows at all, such
 as a staffing table whose rows are job titles. The schema here begins with a
 year, so these are refused rather than mangled. A quarter of the compendium
-cannot be represented by this data model, and that is worth knowing before
-planning to extend the dataset to the whole book.
+cannot be represented by this data model. Anyone extending the dataset to the
+whole book should know that first.
 
 ## Six things that went wrong
 
@@ -164,10 +164,10 @@ have been written by hand since.
 tables one below another. Before this was noticed, two education tables had
 their Taiwanese and Japanese populations merged into single series. Value-level
 verification could not catch it: every number was correct, and only its
-attribution was wrong. The compilers had in fact documented the practice —
-clause 7 of their notes says that categories which could not be merged were "cut
-into several parts and listed separately" — which is a reminder that reading the
-source's own front matter is not optional.
+attribution was wrong. The compilers had in fact documented the practice.
+Clause 7 of their notes says that categories which could not be merged were "cut
+into several parts and listed separately". Reading the source's own front matter
+is not optional.
 
 **The verifier had two faults of its own.** It compared source cells with a bare
 `float()` rather than the parsing rules the extraction used, and so reported the

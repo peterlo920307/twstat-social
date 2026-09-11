@@ -1,4 +1,12 @@
-"""Conversion of a specified spreadsheet into tidy rows."""
+"""Conversion of a specified spreadsheet into tidy rows.
+
+The specification says which columns mean what. The innermost header row is read
+from the sheet rather than restated, because it is usually right and always
+closer to the printed page than a hand-typed copy. Everything else about a row —
+its year, its reporting convention, whether its label carries a second dimension
+— is read from the row itself, and a row that looks dated but cannot be read is
+refused rather than skipped.
+"""
 
 from __future__ import annotations
 

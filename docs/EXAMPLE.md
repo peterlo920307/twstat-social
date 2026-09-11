@@ -139,7 +139,7 @@ check that what should be there is there.**
 That is not a hypothetical. Before section handling existed, this pipeline
 merged Taiwanese and Japanese populations into single series in two real
 education tables, and passed every check it had. Seven tables already reported
-finished had to be redone. [`D15_section_bug.md`](D15_section_bug.md) is the
+complete had to be redone. [`D15_section_bug.md`](D15_section_bug.md) is the
 record.
 
 You have just watched it happen on nine rows. It happened on two real education
@@ -164,4 +164,4 @@ the numbers reveals.
 - [`CODEBOOK.md`](CODEBOOK.md) — every column and every allowed value
 - [`DESIGN.md`](DESIGN.md) — why the schema is shaped this way, and what it costs
 - [`../README.md`](../README.md) — what carries over to a different source
-- `twstat.corpus1946` — the same exercise done 65 times, by hand
+- `twstat.corpus1946` — the same exercise done 78 times

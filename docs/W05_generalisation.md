@@ -28,8 +28,8 @@ Hitotsubashi University:
 The period taxonomy did. Of the 20,419 era expressions embedded in the yearbook
 titles, the parser assigned a period type to every one: 15,311 calendar years and
 5,108 fiscal years. The 年 / 年度 distinction that this package exists to preserve
-is not a quirk of the 1946 compendium. It is how Japanese official statistics
-were dated for sixty years, and a reader who merges the two is making the same
+is not a quirk of the 1946 compendium. It is how this yearbook dated its tables
+across 1882–1940, and a reader who merges the two is making the same
 mistake in either corpus.
 
 That the yearbook is a third of a century older than the compendium, produced by
@@ -60,7 +60,7 @@ The same check inside the 1946 compendium agrees **117 times out of 117** on
 So arithmetic conversion is not dangerous. It is merely useless *here*, and the
 docstring now says so: only 5.3% of date-like row labels in the compendium name
 an era at all, and all but two of those already carry the printed year. Adding a
-Chinese-numeral parser would recover roughly nothing and would enlarge the
+Chinese-numeral parser would recover almost nothing and would enlarge the
 surface on which the pipeline can fail quietly.
 
 The distinction matters because a reader deciding whether to reuse this code on a
@@ -75,7 +75,7 @@ Japanese and Republican era years". All 45,691 non-blank cells were checked.
 
 The 1946 compilers re-dated fifty years of colonial statistics into Republican
 reckoning throughout, writing pre-1912 years as 民國前 N, and appended the
-Gregorian year in parentheses on 98.2% of date-like row labels. A table of
+Gregorian year in parentheses on 98.2% of date-like row labels. Every table of
 Japanese-era figures was silently converted before it was printed.
 
 That is an editorial act by an incoming administration, performed on every page,
@@ -96,7 +96,7 @@ differently from the rest, and the only record of it is a sentence a machine wil
 not read.
 
 This is the failure this package is built to avoid, found in the wild in a
-well-regarded scholarly source.
+standard scholarly source.
 
 ## What is now pinned by tests
 

@@ -56,7 +56,7 @@ What they found that is fixed is in the changelog; this is what is not.
 - [ ] R07 `verify` is 5× slower than it needs to be and the suite 2.3×, both from
       `iterrows` and `.iat` boxing a pandas object per cell. Measured, with
       byte-identical output. Worth doing, not urgent.
-- [ ] R08 Prose and consistency: the long tail from the copy-editing review that
+- [x] R08 Prose and consistency: the long tail from the copy-editing review that
       the factual corrections did not already cover.
 
 ---

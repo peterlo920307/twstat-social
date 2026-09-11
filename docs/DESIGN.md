@@ -76,8 +76,8 @@ the table had been absorbed into a column name. The check was a bad proxy and it
 could not see its own failures. `D12_findings.md` has the detail.
 
 Specifications are now written by hand, one per section, 78 of them in
-`twstat.corpus1946`. That is slow and it does not scale to the whole compendium
-of 634 tables.
+`twstat.corpus1946`. That is slow and it does not scale to the whole compendium,
+which its compilers count as 540 tables and the digitisation holds as 649 files.
 
 **What would change it:** a check that can actually detect a wrong label. Nobody
 has one. Until then the labour is the price of not publishing confident nonsense.
