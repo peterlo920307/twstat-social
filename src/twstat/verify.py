@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from .values import Flag
 from .values import parse as parse_value
 
 __all__ = ["Mismatch", "SourceNotFoundError", "verify"]
@@ -40,11 +41,17 @@ class SourceNotFoundError(LookupError):
 
 
 def verify(tidy: pd.DataFrame, raw_dir: str | Path) -> list[Mismatch]:
-    """Re-read every value from its source cell and report disagreements.
+    """Re-read every row from its source cell and report disagreements.
 
     The source cell is parsed with the same rules the extraction used. Comparing
     against a bare ``float()`` instead would report the bracket artifacts as data
     errors, which is a mistake this function made until it was found.
+
+    Every row is checked, including the ones with no value. Until
+    ``docs/WORK.md`` R02 the 8,005 missing rows were skipped, so their
+    coordinates were never read: every one could be set to row 9999 and this
+    still reported no mismatches. A missing row now has to point at a cell that
+    really holds no number.
     """
     raw_dir = Path(raw_dir)
     mismatches: list[Mismatch] = []
@@ -56,29 +63,42 @@ def verify(tidy: pd.DataFrame, raw_dir: str | Path) -> list[Mismatch]:
         )
         if not candidates:
             raise SourceNotFoundError(f"no source file for {table_id} under {raw_dir}")
-        frame = pd.read_excel(candidates[0], header=None)
-        for _, row in group.iterrows():
-            if pd.isna(row["value"]):
+        # Cell by cell from an object array. ``iterrows`` builds a Series per row
+        # and ``DataFrame.iat`` boxes another per cell, which made this the
+        # slowest command in the package by a factor of five.
+        grid = pd.read_excel(candidates[0], header=None).to_numpy(dtype=object)
+        for value, flag, src_row, src_col in zip(
+            group["value"], group["flag"], group["src_row"], group["src_col"], strict=True
+        ):
+            row, column = int(src_row), int(src_col)
+
+            def report(
+                reason: str, table_id: str = table_id, row: int = row, column: int = column
+            ) -> None:
+                mismatches.append(Mismatch(table_id, row, column, reason))
+
+            # A zero or negative coordinate would index from the far end of the
+            # sheet without raising, so it has to be refused before the read.
+            if row < 1 or column < 1:
+                report("coordinate is not 1-based")
                 continue
             try:
-                cell = frame.iat[int(row["src_row"]) - 1, int(row["src_col"]) - 1]
+                cell = grid[row - 1, column - 1]
             except IndexError:
-                mismatches.append(
-                    Mismatch(table_id, row["src_row"], row["src_col"], "out of range")
-                )
+                report("out of range")
                 continue
-            expected = parse_value(cell).number
-            if expected is None:
-                mismatches.append(
-                    Mismatch(table_id, row["src_row"], row["src_col"], f"unparsable: {cell!r}")
-                )
-            elif abs(expected - float(row["value"])) > 1e-9:
-                mismatches.append(
-                    Mismatch(
-                        table_id,
-                        row["src_row"],
-                        row["src_col"],
-                        f"{expected} != {row['value']}",
-                    )
-                )
+
+            parsed = parse_value(cell)
+            if pd.isna(value):
+                if parsed.number is not None:
+                    report(f"recorded absent but source reads {parsed.number}")
+                elif flag == Flag.MISSING.value and parsed.flag is not Flag.MISSING:
+                    report(f"recorded missing but source reads {cell!r}")
+                continue
+            if parsed.number is None:
+                report(f"unparsable: {cell!r}")
+            elif abs(parsed.number - float(value)) > 1e-9:
+                report(f"{parsed.number} != {value}")
+            elif flag == Flag.BRACKET_ARTIFACT.value and parsed.flag is not Flag.BRACKET_ARTIFACT:
+                report(f"recorded as braced but source reads {cell!r}")
     return mismatches

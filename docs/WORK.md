@@ -31,7 +31,7 @@ What they found that is fixed is in the changelog; this is what is not.
       across two rows, `┌患者` and `└死亡`, and only the first carries a year, so
       the death row is skipped. Needs the year carried across a continuation row
       and a row-level dimension in the schema. `bias_statement.md` B7.
-- [ ] R02 **`verify` never reads back the 8,005 rows with no value.** Their
+- [x] R02 **`verify` never reads back the 8,005 rows with no value.** Their
       provenance is never dereferenced, so a wrong coordinate on a missing row is
       undetectable — setting every one to row 9999 still reports zero mismatches.
       It should check that the cell really is unreadable.
