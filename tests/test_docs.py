@@ -18,12 +18,17 @@ def linked() -> set[str]:
     return set(re.findall(r"\]\((?!\.\./)([A-Za-z0-9_]+\.md)\)", text))
 
 
+# Fenced code is not prose. A regular expression in a code block can contain
+# "](" and would otherwise be read as a link.
+FENCE = re.compile(r"^```.*?^```", re.MULTILINE | re.DOTALL)
+
+
 def relative_links() -> list[tuple[Path, str]]:
     pages = sorted([*ROOT.glob("*.md"), *DOCS.glob("*.md")])
     return [
         (page, target)
         for page in pages
-        for target in LINK.findall(page.read_text(encoding="utf-8"))
+        for target in LINK.findall(FENCE.sub("", page.read_text(encoding="utf-8")))
         if not SCHEME.match(target) and not target.startswith("#")
     ]
 
