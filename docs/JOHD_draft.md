@@ -143,7 +143,9 @@ colonial taiwan; historical statistics; education; public health; poor relief; d
 - **紀年已被改寫**：1946 年編纂者將五十年日治統計全數改寫為民國紀年，與日治原始統計書對照時須注意
 - **衍生值**：表 480–482 的 21 個比率欄為 2006 年數位化時以公式算出，非原書印出之數字
 - **縣市層級**被原書系統性排除（〈凡例〉(三)）；軍事與重要工礦資料在日治時期即列機密
-- 【TODO，尚未查證】1920 年州廳制改制對地理單位可比性的影響
+- **1920 年州廳制改制**：只有表 507、508 以州廳為維度。表 507 的 1909–1919 年數字是編纂者依
+  新州界回溯歸併的（附註(2)）；澎湖廳 1920–1926 年間併入高雄州欄（附註(3)），
+  高雄州序列在該期間包含澎湖
 - 本資料集為二手彙編（1946 年接收方所編）之再處理，非日治原始統計書
 - 語意層（欄位含義）尚未經第二位標註者檢核
 
@@ -178,5 +180,4 @@ colonial taiwan; historical statistics; education; public health; poor relief; d
 5. AI Declaration
 6. Zenodo 存放（取得 DOI）與 repo 公開
 7. 第二位標註者，完成 κ 驗證
-8. 1920 年州廳制改制的影響（需查證，不可推測）
-9. Acknowledgements、Funding、Supplementary Files、Object name、日期
+8. Acknowledgements、Funding、Supplementary Files、Object name、日期
