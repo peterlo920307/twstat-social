@@ -37,3 +37,19 @@ jobs:
           cache: pip
       - run: pip install -e ".[dev]"
       - run: mypy
+
+  data:
+    # The data files against data/datapackage.json: types, enums, required
+    # fields, primary and foreign keys. The frictionless validator is not a
+    # dependency of the package; it is only needed here.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install "frictionless>=5,<6"
+      - run: frictionless validate data/datapackage.json
+

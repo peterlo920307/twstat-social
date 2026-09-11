@@ -159,3 +159,31 @@ def test_every_footnote_reference_in_a_label_resolves_to_a_note_item(tidy):
                 if (table_id, label, int(number)) not in known:
                     unresolved.add((table_id, label, text))
     assert unresolved == set()
+
+
+def test_the_data_package_describes_the_files_as_they_are():
+    # data/datapackage.json is what a program reads instead of the codebook. The
+    # frictionless validator runs in CI; this checks the parts that tie it to the
+    # package, which the validator cannot know about.
+    import json
+
+    from twstat.eradate import Period
+    from twstat.values import Flag
+
+    package = json.loads((DATA / "datapackage.json").read_text(encoding="utf-8"))
+    by_name = {resource["name"]: resource for resource in package["resources"]}
+    assert set(by_name) == {"tidy", "notes", "note_items", "validation_sample"}
+    for resource in package["resources"]:
+        frame = pd.read_csv(DATA / resource["path"])
+        fields = [field["name"] for field in resource["schema"]["fields"]]
+        assert fields == list(frame.columns), resource["name"]
+        assert not frame.duplicated(resource["schema"]["primaryKey"]).any(), resource["name"]
+
+    tidy_fields = {field["name"]: field for field in by_name["tidy"]["schema"]["fields"]}
+    flags = set(tidy_fields["flag"]["constraints"]["enum"])
+    # Every flag the extractor can write, and none it cannot. non_numeric never
+    # reaches the tidy file, because a stray note is not an observation.
+    assert flags == {flag.value for flag in Flag} - {Flag.NON_NUMERIC.value}
+    periods = set(tidy_fields["period_type"]["constraints"]["enum"])
+    assert periods == {period.value for period in Period}
+    assert package["version"] == __import__("twstat").__version__

@@ -45,6 +45,14 @@ For the three chapters of the compendium processed here — education, hygiene
 and welfare — that is **39,150 rows, 30,640 values, 48 tables,
 1897–1945, and no mismatches**.
 
+| File | What it holds |
+|---|---|
+| [`data/tidy.csv`](data/tidy.csv) | The observations, one per row, 39,150 |
+| [`data/notes.csv`](data/notes.csv) | The compilers' footnotes and source attributions, as printed, 102 |
+| [`data/note_items.csv`](data/note_items.csv) | Footnotes split into numbered items, so a label's `(1)` can be joined to its note, 93 |
+| [`data/validation_sample.csv`](data/validation_sample.csv) | A blank coding sheet for checking the labels, 234 cells |
+| [`data/datapackage.json`](data/datapackage.json) | All four described in the Frictionless Data format: every column's type, allowed values, and the keys that join the files. CI validates the data against it |
+
 ## Install
 
 To use it:

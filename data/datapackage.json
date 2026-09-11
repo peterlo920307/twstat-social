@@ -1,0 +1,178 @@
+{
+  "profile": "tabular-data-package",
+  "name": "twstat-social",
+  "title": "Colonial Taiwan Social-Administration Statistics: Education, Health Services, and Poor Relief",
+  "description": "Forty-eight tables from the education, hygiene and welfare chapters of the Taiwan Province Statistical Abstract for the Past Fifty-One Years, compiled in 1946 and digitised by the Institute of Information Science, Academia Sinica, in 2006. One row per observation, each naming the spreadsheet cell it was read from. docs/CODEBOOK.md in the repository gives the full account; this file states the same schema in a form a program can check.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/peterlo920307/twstat-social",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "title": "Creative Commons Attribution 4.0",
+      "path": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  ],
+  "sources": [
+    {
+      "title": "臺灣省五十一年來統計提要 (Taiwan Province Statistical Abstract for the Past Fifty-One Years), digitised by the Institute of Information Science, Academia Sinica",
+      "path": "https://twstudy.iis.sinica.edu.tw/TwStatistic50/"
+    }
+  ],
+  "resources": [
+    {
+      "name": "tidy",
+      "path": "tidy.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8-sig",
+      "description": "The observations. A row is one cell of one source table, with its period and the two headings it falls under.",
+      "schema": {
+        "fields": [
+          {
+            "name": "table_id",
+            "type": "string",
+            "description": "The compendium's table number, as in the source file name.",
+            "constraints": {"required": true, "pattern": "Mt[0-9]{3}(-[0-9])?"}
+          },
+          {
+            "name": "section",
+            "type": "integer",
+            "description": "Which of the tables stacked in one sheet this row belongs to, counted from 1. A new section begins at a numbered heading or at a fresh band of column headings.",
+            "constraints": {"required": true, "minimum": 1}
+          },
+          {
+            "name": "section_label",
+            "type": "string",
+            "description": "The section's printed heading without its number, or empty when the sheet has no heading. Footnote markers such as (2) are kept; see note_items."
+          },
+          {
+            "name": "year",
+            "type": "integer",
+            "description": "Gregorian year, read from the bracketed year the compilers printed beside the Republican-era label. Read together with period_type.",
+            "constraints": {"required": true, "minimum": 1897, "maximum": 1945}
+          },
+          {
+            "name": "period_type",
+            "type": "string",
+            "description": "What the year refers to. A fiscal year runs 1 April to 31 March; a fiscal year end is 31 March of the following year; a year end is 31 December. Series of different types are not comparable without adjustment.",
+            "constraints": {
+              "required": true,
+              "enum": ["calendar_year", "year_end", "fiscal_year", "fiscal_year_end", "academic_year"]
+            }
+          },
+          {
+            "name": "dim1",
+            "type": "string",
+            "description": "The outer heading the column falls under, as printed. Read off the printed layout by one person and not yet checked by a second.",
+            "constraints": {"required": true}
+          },
+          {
+            "name": "dim2",
+            "type": "string",
+            "description": "The inner heading directly above the figure, or empty if the column has none. In Mt487-2 and Mt489 it also carries 患者 (cases) or 死亡 (deaths), read from the row label."
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "description": "The figure, empty when the cell holds none. Twenty-one ratio columns in Mt480-Mt482 were computed during digitisation and carry more precision than the printed book."
+          },
+          {
+            "name": "flag",
+            "type": "string",
+            "description": "Empty for a plain figure. missing: the compilers' dot. blank: nothing printed in the cell. covered: spanned by the braced figure to its left, which is the combined total. bracket_artifact: a figure printed inside a brace. less_than_one_unit: a printed 0, meaning below one unit. None of the absent kinds may be read as zero.",
+            "constraints": {
+              "enum": ["missing", "blank", "covered", "bracket_artifact", "less_than_one_unit"]
+            }
+          },
+          {
+            "name": "src_row",
+            "type": "integer",
+            "description": "One-based row of the source spreadsheet the figure was read from.",
+            "constraints": {"required": true, "minimum": 1}
+          },
+          {
+            "name": "src_col",
+            "type": "integer",
+            "description": "One-based column of the source spreadsheet the figure was read from.",
+            "constraints": {"required": true, "minimum": 1}
+          }
+        ],
+        "primaryKey": ["table_id", "src_row", "src_col"],
+        "missingValues": [""]
+      }
+    },
+    {
+      "name": "notes",
+      "path": "notes.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8-sig",
+      "description": "The compilers' footnotes and source attributions, as printed.",
+      "schema": {
+        "fields": [
+          {"name": "file", "type": "string", "description": "Source file name without extension.", "constraints": {"required": true}},
+          {"name": "table_id", "type": "string", "constraints": {"required": true, "pattern": "Mt[0-9]{3}(-[0-9])?"}},
+          {"name": "section", "type": "integer", "description": "The section the note is printed in. Notes follow the printed page, so this is where it sits, not necessarily what it covers.", "constraints": {"required": true, "minimum": 1}},
+          {"name": "section_label", "type": "string", "description": "Heading of that section, cleaned as in tidy."},
+          {"name": "src_row", "type": "integer", "constraints": {"required": true, "minimum": 1}},
+          {"name": "kind", "type": "string", "description": "note: a footnote (附註). source: a source attribution (材料來源).", "constraints": {"required": true, "enum": ["note", "source"]}},
+          {"name": "text", "type": "string", "description": "The full text, continuation lines joined.", "constraints": {"required": true}}
+        ],
+        "primaryKey": ["table_id", "src_row"],
+        "missingValues": [""]
+      }
+    },
+    {
+      "name": "note_items",
+      "path": "note_items.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8-sig",
+      "description": "Each footnote split into its numbered items. A label ending in (1) in tidy resolves to the item with the same table_id, section_label and marker.",
+      "schema": {
+        "fields": [
+          {"name": "table_id", "type": "string", "constraints": {"required": true, "pattern": "Mt[0-9]{3}(-[0-9])?"}},
+          {"name": "section_label", "type": "string"},
+          {"name": "marker", "type": "integer", "description": "The item's number, 1 for (1).", "constraints": {"required": true, "minimum": 1}},
+          {"name": "text", "type": "string", "constraints": {"required": true}},
+          {"name": "src_row", "type": "integer", "description": "Row of the note the item belongs to.", "constraints": {"required": true, "minimum": 1}}
+        ],
+        "primaryKey": ["table_id", "src_row", "marker"],
+        "foreignKeys": [
+          {"fields": ["table_id", "src_row"], "reference": {"resource": "notes", "fields": ["table_id", "src_row"]}}
+        ],
+        "missingValues": [""]
+      }
+    },
+    {
+      "name": "validation_sample",
+      "path": "validation_sample.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8-sig",
+      "description": "A blank coding sheet for the second reader who will check dim1 and dim2: three cells from each of the 78 sections. docs/CODING_SHEET.md is the instruction.",
+      "schema": {
+        "fields": [
+          {"name": "table_id", "type": "string", "constraints": {"required": true, "pattern": "Mt[0-9]{3}(-[0-9])?"}},
+          {"name": "section", "type": "integer", "constraints": {"required": true, "minimum": 1}},
+          {"name": "year", "type": "integer", "constraints": {"required": true, "minimum": 1897, "maximum": 1945}},
+          {"name": "src_row", "type": "integer", "constraints": {"required": true, "minimum": 1}},
+          {"name": "src_col", "type": "integer", "constraints": {"required": true, "minimum": 1}},
+          {"name": "value", "type": "number", "description": "Shown only so the coder can confirm the cell."},
+          {"name": "coded_dim1", "type": "string", "description": "Left blank for the coder."},
+          {"name": "coded_dim2", "type": "string", "description": "Left blank for the coder."},
+          {"name": "note", "type": "string", "description": "Left blank for the coder."}
+        ],
+        "primaryKey": ["table_id", "src_row", "src_col"],
+        "foreignKeys": [
+          {"fields": ["table_id", "src_row", "src_col"], "reference": {"resource": "tidy", "fields": ["table_id", "src_row", "src_col"]}}
+        ],
+        "missingValues": [""]
+      }
+    }
+  ]
+}

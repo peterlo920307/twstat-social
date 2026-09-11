@@ -58,4 +58,4 @@ jobs:
             --title "twstat $GITHUB_REF_NAME" \
             --notes-file notes.md \
             dist/* data/tidy.csv data/notes.csv data/note_items.csv \
-            data/validation_sample.csv
+            data/validation_sample.csv data/datapackage.json
