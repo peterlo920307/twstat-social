@@ -75,3 +75,18 @@ def test_the_coding_sheet_is_blank(sheet):
 def test_every_row_of_the_coding_sheet_points_at_a_real_observation(sheet, tidy):
     key = ["table_id", "section", "src_row", "src_col"]
     assert sheet.merge(tidy[key], on=key, how="inner").shape[0] == len(sheet)
+
+
+def test_the_full_precision_values_are_the_documented_ratio_columns(tidy):
+    # The printed book gives at most two decimal places. Values with more were
+    # computed in the 2006 spreadsheet, and CODEBOOK section 2a-2 lists them as
+    # 21 ratio columns in three tables. A new one appearing means a column has
+    # changed character and the codebook needs revisiting.
+    def places(value: float) -> int:
+        text = repr(float(value))
+        return len(text.split(".")[1]) if "." in text and "e" not in text else 0
+
+    values = tidy.dropna(subset=["value"])
+    long = values[values["value"].map(places) > 4]
+    assert set(long["table_id"]) == {"Mt480", "Mt481", "Mt482"}
+    assert long.groupby(["table_id", "src_col"]).ngroups == 21
