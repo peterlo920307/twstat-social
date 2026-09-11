@@ -49,6 +49,8 @@ def extract_notes(path: str | Path) -> list[Note]:
     path = Path(path)
     stem = path.stem
     frame = pd.read_excel(path, header=None)
+    # Read cells from an object array; DataFrame.iat builds a pandas object each time.
+    grid = frame.to_numpy(dtype=object)
     sections = sectioning.find(frame)
 
     def locate(row: int) -> tuple[int, str]:
@@ -62,7 +64,7 @@ def extract_notes(path: str | Path) -> list[Note]:
     while row < len(frame):
         head = None
         for column in range(min(4, frame.shape[1])):
-            text = sectioning.clean(frame.iat[row, column])
+            text = sectioning.clean(grid[row, column])
             if text and _HEAD.match(text):
                 head = text
                 break
@@ -72,7 +74,7 @@ def extract_notes(path: str | Path) -> list[Note]:
 
         parts, cursor = [head], row + 1
         while cursor < len(frame):
-            following = sectioning.clean(frame.iat[cursor, 0])
+            following = sectioning.clean(grid[cursor, 0])
             if not following or _HEAD.match(following) or _YEAR.search(following):
                 break
             # A note printed at the foot of one part runs straight into the

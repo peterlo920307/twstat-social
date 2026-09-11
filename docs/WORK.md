@@ -35,7 +35,7 @@ What they found that is fixed is in the changelog; this is what is not.
       provenance is never dereferenced, so a wrong coordinate on a missing row is
       undetectable — setting every one to row 9999 still reports zero mismatches.
       It should check that the cell really is unreadable.
-- [ ] R03 **The test suite kills no mutants.** Thirty deliberate defects were
+- [x] R03 **The test suite kills no mutants.** Thirty deliberate defects were
       introduced one at a time; the CI suite caught none of them and the full
       suite caught twelve. 99% line coverage, and `verify`'s 1e-9 tolerance,
       `header_rows`' title filter and every heuristic in `extract_notes` are
@@ -53,7 +53,7 @@ What they found that is fixed is in the changelog; this is what is not.
       is behind a WAF that returns HTTP 200 with an HTML page; every script
       writes it to `raw/` and reports success. Needs a magic-byte and length
       check, atomic writes via a `.part` file, and a checksum manifest.
-- [ ] R07 `verify` is 5× slower than it needs to be and the suite 2.3×, both from
+- [x] R07 `verify` is 5× slower than it needs to be and the suite 2.3×, both from
       `iterrows` and `.iat` boxing a pandas object per cell. Measured, with
       byte-identical output. Worth doing, not urgent.
 - [x] R08 Prose and consistency: the long tail from the copy-editing review that
