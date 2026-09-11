@@ -22,9 +22,47 @@ Status: [ ] open · [x] done · [!] dropped, with a reason
 - [x] W11 Regenerate `data/tidy.csv` and `data/notes.csv` from the package
 - [x] W12 Produce the validation coding sheet as a committed artefact — data/validation_sample.csv
 
+## Found by the reviews of 11 September, not yet done
+
+Eight parallel reviews of the code, data, tests, packaging, scripts and prose.
+What they found that is fixed is in the changelog; this is what is not.
+
+- [ ] R01 **Mt487-2 and Mt489 discard about 1,900 figures.** Each year is paired
+      across two rows, `┌患者` and `└死亡`, and only the first carries a year, so
+      the death row is skipped. Needs the year carried across a continuation row
+      and a row-level dimension in the schema. `bias_statement.md` B7.
+- [ ] R02 **`verify` never reads back the 8,005 rows with no value.** Their
+      provenance is never dereferenced, so a wrong coordinate on a missing row is
+      undetectable — setting every one to row 9999 still reports zero mismatches.
+      It should check that the cell really is unreadable.
+- [ ] R03 **The test suite kills no mutants.** Thirty deliberate defects were
+      introduced one at a time; the CI suite caught none of them and the full
+      suite caught twelve. 99% line coverage, and `verify`'s 1e-9 tolerance,
+      `header_rows`' title filter and every heuristic in `extract_notes` are
+      unasserted. Coverage was measuring the wrong thing.
+- [ ] R04 **`Welfare_Mt504` loses a whole year to a source typo.** The compendium
+      prints 民國前九年's Gregorian gloss as `(1093)` for 1903. The year fails to
+      parse and the row is skipped in silence — the one internal coverage hole in
+      the corpus. Needs an errata entry and a refusal to skip a stub that looks
+      dated.
+- [ ] R05 **`less_than_one_unit` is probably wrong for 46 of its 47 cells.**
+      Clause 11 says a printed `0` means below one unit, but Mt491's own footnote
+      says its `0` means "there were patients but no deaths" — an exact zero. The
+      flag needs to be settable per table.
+- [ ] R06 **The download scripts accept an error page as data.** The Sinica host
+      is behind a WAF that returns HTTP 200 with an HTML page; every script
+      writes it to `raw/` and reports success. Needs a magic-byte and length
+      check, atomic writes via a `.part` file, and a checksum manifest.
+- [ ] R07 `verify` is 5× slower than it needs to be and the suite 2.3×, both from
+      `iterrows` and `.iat` boxing a pandas object per cell. Measured, with
+      byte-identical output. Worth doing, not urgent.
+- [ ] R08 Prose and consistency: the long tail from the copy-editing review that
+      the factual corrections did not already cover.
+
 ---
 
-All twelve are done. What remains is not engineering.
+The original twelve are done. What remains beyond the list above is not
+engineering.
 
 ## Blocked on a person
 
