@@ -4,6 +4,7 @@ These cover the rows with no value, which were not read back at all until
 docs/WORK.md R02. A wrong coordinate on such a row used to be undetectable.
 """
 
+import pandas as pd
 import pytest
 
 from twstat import extract_file, verify
@@ -52,3 +53,31 @@ def test_a_figure_claimed_as_braced_must_be_braced_in_the_source(tidy, flat_shee
     tidy.loc[plain, "flag"] = "bracket_artifact"
     reasons = [m.reason for m in verify(tidy, flat_sheet.parent)]
     assert len(reasons) == 1 and reasons[0].startswith("recorded as braced")
+
+
+def test_floating_point_noise_is_not_a_mismatch(tidy, flat_sheet):
+    # A value that has been through a CSV can come back different in its last
+    # digit. That is not a mismatch.
+    target = tidy[(tidy.year == 1922) & (tidy.dim1 == "學生")].index[0]
+    tidy.loc[target, "value"] = 100.0 + 1e-12
+    assert verify(tidy, flat_sheet.parent) == []
+
+
+def test_the_xls_is_read_when_an_xlsx_of_the_same_table_is_beside_it(tmp_path):
+    # The corpus is distributed as .xls. An .xlsx of the same table in the
+    # same directory is a local conversion, possibly edited, and the numbers
+    # are to be checked against the original. pandas cannot write .xls, but
+    # read_excel chooses its reader from the file's contents rather than its
+    # name, so an .xlsx written under the .xls name stands in for one.
+    table = [["表990 來源測試", None], [None, "學生數"], ["十 一 年(1922)", 5]]
+    converted = [["表990 來源測試", None], [None, "學生數"], ["十 一 年(1922)", 6]]
+    original = tmp_path / "Test_Mt990.xls"
+    pd.DataFrame(table).to_excel(tmp_path / "staging.xlsx", header=False, index=False)
+    (tmp_path / "staging.xlsx").rename(original)
+    pd.DataFrame(converted).to_excel(tmp_path / "Test_Mt990.xlsx", header=False, index=False)
+
+    book = SpecBook()
+    book.define("Test_Mt990", 1, [(2, 2, "學生")])
+    tidy = extract_file(original, book)
+    assert list(tidy["value"]) == [5.0]
+    assert verify(tidy, tmp_path) == []

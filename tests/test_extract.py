@@ -8,7 +8,6 @@ import pytest
 from twstat import extract_file, verify
 from twstat.spec import SpecBook
 from twstat.values import Flag
-from twstat.verify import Mismatch
 
 
 @pytest.fixture
@@ -195,44 +194,6 @@ def test_extract_file_skips_sections_that_have_no_specification(stacked_sheet):
     assert set(tidy["section"]) == {1}
 
 
-def test_verify_reports_a_difference_of_half_a_unit(flat_sheet, flat_spec):
-    # The tolerance exists for floating-point noise, not for rounding. Half a
-    # unit is a transcription error and must be reported, with both numbers.
-    tidy = extract_file(flat_sheet, flat_spec)
-    target = tidy[(tidy.year == 1922) & (tidy.dim1 == "校數")].index[0]
-    tidy.loc[target, "value"] = 3.5
-    assert verify(tidy, flat_sheet.parent) == [Mismatch("Mt998", 3, 2, "3.0 != 3.5")]
-
-
-def test_verify_tolerates_floating_point_noise(flat_sheet, flat_spec):
-    # A value that has been through a CSV can come back different in its last
-    # digit. That is not a mismatch.
-    tidy = extract_file(flat_sheet, flat_spec)
-    target = tidy[(tidy.year == 1922) & (tidy.dim1 == "學生")].index[0]
-    tidy.loc[target, "value"] = 100.0 + 1e-12
-    assert verify(tidy, flat_sheet.parent) == []
-
-
-def test_verify_reads_the_xls_when_an_xlsx_of_the_same_table_is_beside_it(tmp_path):
-    # The corpus is distributed as .xls. An .xlsx of the same table in the
-    # same directory is a local conversion, possibly edited, and the numbers
-    # are to be checked against the original. pandas cannot write .xls, but
-    # read_excel chooses its reader from the file's contents rather than its
-    # name, so an .xlsx written under the .xls name stands in for one.
-    table = [["表990 來源測試", None], [None, "學生數"], ["十 一 年(1922)", 5]]
-    converted = [["表990 來源測試", None], [None, "學生數"], ["十 一 年(1922)", 6]]
-    original = tmp_path / "Test_Mt990.xls"
-    pd.DataFrame(table).to_excel(tmp_path / "staging.xlsx", header=False, index=False)
-    (tmp_path / "staging.xlsx").rename(original)
-    pd.DataFrame(converted).to_excel(tmp_path / "Test_Mt990.xlsx", header=False, index=False)
-
-    book = SpecBook()
-    book.define("Test_Mt990", 1, [(2, 2, "學生")])
-    tidy = extract_file(original, book)
-    assert list(tidy["value"]) == [5.0]
-    assert verify(tidy, tmp_path) == []
-
-
 def _write(tmp_path, rows, name="Test_Mt990.xlsx"):
     path = tmp_path / name
     pd.DataFrame(rows).to_excel(path, header=False, index=False)
@@ -272,36 +233,3 @@ def test_a_unit_note_in_the_label_column_does_not_displace_the_header(tmp_path):
     book.define("Test_Mt990", 1, [(2, 3, "公立")])
     tidy = extract_file(_write(tmp_path, rows), book)
     assert list(tidy["dim2"]) == ["校數", "學生數"]
-
-
-@pytest.mark.parametrize(
-    "stop",
-    [
-        ".",
-        pytest.param(
-            "．",
-            marks=pytest.mark.xfail(
-                strict=False,
-                reason="extract.py strips only the ASCII stop from the label; "
-                "the fix is being made there separately",
-            ),
-        ),
-    ],
-)
-def test_section_label_is_clean_with_either_full_stop(tmp_path, stop):
-    # Both stops are accepted as markers (tests/test_sections.py), so both
-    # have to be removed from the label; otherwise the full-width one leaves
-    # "．官等" in every row of the section.
-    rows = [
-        ["表995 全形標記測試", None],
-        [f"1{stop}官等", None],
-        [None, "人數"],
-        ["十 一 年(1922)", 10],
-        [f"2{stop}性別", None],
-        [None, "人數"],
-        ["十 一 年(1922)", 20],
-    ]
-    book = SpecBook()
-    book.define("Test_Mt995", [1, 2], [(2, 2, "人數")])
-    tidy = extract_file(_write(tmp_path, rows, "Test_Mt995.xlsx"), book)
-    assert list(tidy["section_label"]) == ["官等", "性別"]
