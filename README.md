@@ -38,7 +38,7 @@ what makes the result checkable: every number can be read back from the source
 and compared, so the claim is a complete check rather than an accuracy estimate.
 
 For the three sections of the compendium processed here — education, health
-services and poor relief — that is **36,672 rows, 28,667 values, 48 tables,
+services and poor relief — that is **36,735 rows, 28,745 values, 48 tables,
 1897–1945, and no mismatches**.
 
 ## Install
@@ -142,12 +142,13 @@ year, so these are refused rather than mangled. A quarter of the compendium
 cannot be represented by this data model, and that is worth knowing before
 planning to extend the dataset to the whole book.
 
-## Five things that went wrong
+## Six things that went wrong
 
 These are in the repository because they are the argument for how the code is
-now structured. The last two were found by running the code on tables it had
-never seen, which is why that exercise is worth the trouble. The full record,
-including the directions that were investigated and dropped, is indexed in
+now structured. Two were found by running the code on tables it had never seen,
+and the last by a review of the code against the corpus, which is why both
+exercises are worth the trouble. The full record, including the directions that
+were investigated and dropped, is indexed in
 [`docs/README.md`](docs/README.md).
 
 **Automated header reconstruction produced plausible wrong answers.** Because a
@@ -190,6 +191,18 @@ one above, this was not confined to the unseen chapters: **98 figures in the
 published corpus were being thrown away**, and `data/tidy.csv` gains 102 rows.
 No value was wrong, so verification passed; the values simply were not there.
 
+**Three health tables published the wrong disease names.** They run five or six
+bands of column headings down one sheet, each re-using the same columns for
+different diseases, and nothing marks the boundaries. The pipeline applied the
+first band's headings to the whole section. **2,976 rows — 8.1% of the dataset —
+named a disease belonging to a different disease**, and a count of pulmonary
+tuberculosis was published as paratyphoid. Verification reported no mismatches
+throughout, correctly: every number was read from the right cell. Only the label
+was wrong, and a check on values cannot see a label. This is the same lesson as
+the stacked sections above, learned a second time in a form the first fix did
+not cover. [`docs/W13_header_bands.md`](docs/W13_header_bands.md) is the full
+account.
+
 ## What is not verified
 
 The numeric layer is checked completely. **The semantic layer is not.** Which
@@ -199,7 +212,7 @@ proposed rather than established.
 
 The work is set up and waiting for someone to do it.
 [`data/validation_sample.csv`](data/validation_sample.csv) is the blank coding
-sheet — 195 cells, three from each of the 65 sections, all 48 tables — and
+sheet — 234 cells, three from each of the 78 sections, all 48 tables — and
 [`docs/CODING_SHEET.md`](docs/CODING_SHEET.md) is everything a second coder needs
 in one page: the rules agreed in advance, how to fill it in, and how to compute
 Cohen's kappa afterwards. Two to three hours.

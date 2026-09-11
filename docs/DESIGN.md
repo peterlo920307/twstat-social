@@ -10,12 +10,12 @@ Several were made twice, because the first version was wrong; those are marked.
 alternative is a tidy table with no provenance, which is what most published
 historical datasets are.
 
-The cost is real: the two columns are 7.4% of the file, and 36,672 rows of
+The cost is real: the two columns are 7.4% of the file, and 36,735 rows of
 eleven columns is 2.8 MB.
 
 They buy the one claim here that can be checked in full. `twstat verify`
 re-reads every value from its source cell and compares. Not a sample, not an
-estimate — all 28,667 of them, and it currently reports no mismatches. A dataset
+estimate — all 28,745 of them, and it currently reports no mismatches. A dataset
 that says "we checked 200 rows and found two errors" is telling you about its
 sample. Without provenance, complete verification is not possible at all, and a
 reader disputing one figure has no way to reach the cell behind it.
@@ -75,7 +75,7 @@ wrong. Two distinct labels had been fused into one, and in one table the title o
 the table had been absorbed into a column name. The check was a bad proxy and it
 could not see its own failures. `D12_findings.md` has the detail.
 
-Specifications are now written by hand, one per section, 65 of them in
+Specifications are now written by hand, one per section, 78 of them in
 `twstat.corpus1946`. That is slow and it does not scale to the whole compendium
 of 634 tables.
 

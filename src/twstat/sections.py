@@ -8,8 +8,15 @@ different column layout.
 
 Eleven of the fifty files in the source corpus are affected. Reading such a file
 as one table silently merges unrelated populations: in two education tables it
-merges Taiwanese and Japanese pupils into a single series, which no value-level
+merged Taiwanese and Japanese pupils into a single series, which no value-level
 check can detect because every individual number is correct.
+
+Not every part is announced by a numbered marker. Three of the health tables run
+five or six header bands down a single sheet, each re-using the same physical
+columns for a different set of diseases and each carrying its own full run of
+years. Nothing separates them but the header band itself. Splitting only on
+markers published 2,976 rows under the first band's disease names; see
+``docs/W06_layout.md``.
 """
 
 from __future__ import annotations
@@ -20,6 +27,7 @@ from dataclasses import dataclass
 import pandas as pd
 
 from .eradate import parse as parse_date
+from .values import parse as parse_value
 
 __all__ = ["Section", "clean", "find", "header_rows"]
 
@@ -51,14 +59,57 @@ class Section:
     """Row range, zero-based and half-open."""
 
 
-def find(frame: pd.DataFrame, scan_columns: int = 5) -> list[Section]:
-    """Split a sheet at its section markers.
+def _is_header_band(frame: pd.DataFrame, row: int) -> bool:
+    """Return ``True`` if this row reads as column headings rather than data.
 
-    Markers are numbered headings such as ``1.臺中農林專門學校``, placed in one of
-    the leftmost columns. A sheet with no markers is returned as a single
-    section covering the whole frame.
+    Two or more cells right of the label column that hold text no number can be
+    read out of. One such cell is a unit note or a stray mark; two is a heading.
     """
-    marks: list[tuple[int, str]] = []
+    found = 0
+    for column in range(1, frame.shape[1]):
+        text = clean(frame.iat[row, column])
+        if not text:
+            continue
+        value = parse_value(text)
+        if value.number is None and value.flag is not None and value.flag.value == "non_numeric":
+            found += 1
+            if found >= 2:
+                return True
+    return False
+
+
+def _band_starts(frame: pd.DataFrame, start: int, end: int) -> list[int]:
+    """Rows within ``start:end`` where a fresh header band begins after data.
+
+    The band above the first data row is the section's own header and is not
+    returned; only a band that interrupts the data is a new part.
+    """
+    starts: list[int] = []
+    seen_data = False
+    pending: int | None = None
+    for row in range(start, end):
+        if parse_date(frame.iat[row, 0]).year is not None:
+            if pending is not None and seen_data:
+                starts.append(pending)
+            pending, seen_data = None, True
+            continue
+        if pending is None and _is_header_band(frame, row):
+            pending = row
+    return starts
+
+
+def find(frame: pd.DataFrame, scan_columns: int = 5) -> list[Section]:
+    """Split a sheet into the tables it holds.
+
+    Two things separate one table from the next. A numbered heading such as
+    ``1.臺中農林專門學校`` in one of the leftmost columns, and a fresh band of
+    column headings part-way down a table that otherwise looks continuous. The
+    second kind is not announced at all, and missing it is the more dangerous of
+    the two: the figures stay correct and only their labels are wrong.
+
+    A sheet with neither is returned as a single section covering the frame.
+    """
+    marks: list[tuple[int, str | None]] = []
     for row in range(len(frame)):
         for column in range(min(scan_columns, frame.shape[1])):
             text = clean(frame.iat[row, column])
@@ -66,11 +117,18 @@ def find(frame: pd.DataFrame, scan_columns: int = 5) -> list[Section]:
                 marks.append((row, text))
                 break
     if not marks:
-        return [Section(1, None, 0, len(frame))]
+        marks = [(0, None)]
 
-    sections = []
+    bounds: list[tuple[int, str | None]] = []
     for index, (row, label) in enumerate(marks):
         end = marks[index + 1][0] if index + 1 < len(marks) else len(frame)
+        bounds.append((row, label))
+        # A continuation band keeps the heading it was printed under.
+        bounds.extend((band, label) for band in _band_starts(frame, row, end))
+
+    sections = []
+    for index, (row, label) in enumerate(bounds):
+        end = bounds[index + 1][0] if index + 1 < len(bounds) else len(frame)
         sections.append(Section(index + 1, label, row, end))
     return sections
 

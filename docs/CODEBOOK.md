@@ -1,6 +1,6 @@
 # Codebook — Colonial Taiwan Social-Administration Statistics, 1895–1945
 
-v0.2｜自 `twstat` 套件產生（2026-09-10）｜36,672 列、28,667 個數值、48 表、65 區段
+v0.3｜自 `twstat` 套件產生（2026-09-11）｜36,735 列、28,745 個數值、48 表、78 區段
 
 ## 1. 資料檔結構（tidy 長格式，每列一個觀察值）
 

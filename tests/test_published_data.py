@@ -51,7 +51,7 @@ def sheet() -> pd.DataFrame:
 
 
 def test_the_coding_sheet_covers_every_section_evenly(sheet):
-    assert len(sheet) == 195
+    assert len(sheet) == 234
     assert sheet["table_id"].nunique() == 48
     counts = sheet.groupby(["table_id", "section"]).size()
     assert counts.nunique() == 1 and counts.iloc[0] == 3

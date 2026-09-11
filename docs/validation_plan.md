@@ -8,7 +8,7 @@
 每筆 tidy 紀錄都帶 `src_row`/`src_col`，可直接回讀原始 .xls 儲存格比對。
 → 這不是抽樣估計，是**全量核對**，可報告「N 筆中 M 筆不符」的確切數字。
 → 由 `twstat verify data/tidy.csv raw` 執行（`twstat.verify`）。
-→ 目前結果：**28,667 筆全數核對，0 筆不符**。
+→ 目前結果：**28,745 筆全數核對，0 筆不符**。
 
 **這比抽樣更強**：JOHD 審查人看到的是完整核對，不是信賴區間。
 
@@ -21,7 +21,7 @@
 ## 抽樣設計
 - **母體**：完成 tidy 化後、`dim1` 非空的所有紀錄
 - **方法**：依 `table_id` 分層，每表等額抽取
-- **樣本數**：目標 200，實際 **195**（每個區段等額 3 筆 × 65 區段），涵蓋全部 48 表、1898–1944
+- **樣本數**：目標 240，實際 **234**（每個區段等額 3 筆 × 78 區段），涵蓋全部 48 表、1898–1944
 - **亂數種子**：20260909（固定，確保可複現）
 - **程序**：
   1. 產生空白編碼表（含 table_id / src_row / src_col / year / value）
@@ -53,7 +53,7 @@
 | `draw_sample(tidy_csv, n=200, seed=20260909)` | `twstat sample data/tidy.csv out.csv`（`twstat.sampling.coding_sheet`） |
 | `kappa(a, b)` | `twstat.sampling.cohen_kappa` |
 
-- **空白編碼表已產出並納入版本控制**：`data/validation_sample.csv`（195 列）
+- **空白編碼表已產出並納入版本控制**：`data/validation_sample.csv`（234 列）
 - **編碼者說明**：`CODING_SHEET.md`，第二位編碼者只需讀這一份
 
 ## 尚未完成

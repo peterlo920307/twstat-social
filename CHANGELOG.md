@@ -53,8 +53,44 @@ figures they were discarding.
 - `twstat sample` draws a blank coding sheet from a tidy CSV, stratified across
   sections, for the human check of `dim1` and `dim2` that the numeric
   verification cannot perform.
-- `data/validation_sample.csv` — that sheet, 195 cells across all 65 sections,
+- `data/validation_sample.csv` — that sheet, 234 cells across all 78 sections,
   committed so a second coder can start without running anything.
 - `docs/CODING_SHEET.md` — the instructions for that coder, self-contained.
 - `docs/DESIGN.md`, `docs/EXAMPLE.md`, `docs/README.md`,
   `docs/W05_generalisation.md`, `docs/W06_layout.md`.
+
+### Fixed, data correctness
+- **Three health tables were publishing the wrong disease names.** Mt487-2,
+  Mt488 section 2 and Mt489 section 2 each run five or six bands of column
+  headings down one sheet, each band re-using the same columns for a different
+  set of diseases, with nothing marking the boundaries. The pipeline applied the
+  first band's headings to the whole section, so **2,976 rows — 8.1% of the
+  dataset — named a disease belonging to a different disease**: a count of
+  pulmonary tuberculosis was published as paratyphoid. `verify` reported no
+  mismatches throughout, correctly, because every number was read from the right
+  cell. `sections.find` now splits on a fresh header band as well as on a
+  numbered marker, and those three files gain 13 sections between them.
+  `docs/W13_header_bands.md` is the account.
+- A figure printed with the compilers' own footnote marker in front of it,
+  `(1)    10`, was rejected as unreadable and its row dropped. 23 figures across
+  seven tables are recovered.
+- `Edu_Mt480` gives 共計, 中日文 and 外國文 on the upper header row rather than
+  the innermost one, so all three columns published with no second dimension and
+  117 rows became indistinguishable triplets. The specification states them now.
+- `tests/test_corpus.py` asserts that no `(table_id, section, year, dim1, dim2)`
+  key carries two different values, and that no source cell is used twice. The
+  first would have failed on 726 keys before these fixes. The project had a
+  complete check of values and no check of whether two rows claimed to describe
+  the same thing.
+
+### Changed, data
+- `data/tidy.csv`: 36,672 to 36,735 rows, 28,667 to 28,745 values, 65 to 78
+  specified sections. Verification still reports no mismatches.
+- `data/validation_sample.csv` redrawn against the corrected data: 234 cells,
+  three from each of the 78 sections.
+
+### Known, not fixed
+- Mt487-2 and Mt489 pair each year across two rows, `┌患者` and `└死亡`, and only
+  the first carries a year. The second is skipped and **about 1,900 figures are
+  discarded**. The surviving rows are case counts and the schema does not say so.
+  Recorded in `docs/bias_statement.md` B7.

@@ -60,13 +60,26 @@ _MISSING = {".", "．", "…", "‥", "-", "－", "―", "─", ""}
 _BRACE = re.compile(r"^[┌└├┐┘┤│]?[─—]*\s*(.+?)\s*[─—]*[┌└├┐┘┤│]?$")
 _BRACE_CHARS = "┌└├┐┘┤│─—"
 
+# The compilers cross-reference their own footnotes by printing the marker in
+# front of the figure: "(1)    10". The number is perfectly readable and the
+# marker points at a note that data/notes.csv already carries. Rejecting the
+# whole cell threw 23 figures out of the published corpus.
+_FOOTNOTE_MARKER = re.compile(r"^[(（]\s*\d+\s*[)）]\s*")
+
 
 def _number(text: str) -> float | None:
     """Read a decimal number, or return ``None`` if the text is not one.
 
-    Thousands separators are dropped. Anything else, a date such as ``32.12.22``
-    included, is not a number: ``float`` would reject it and so does this.
+    A leading footnote marker is stripped and thousands separators are dropped.
+    Anything else, a date such as ``32.12.22`` included, is not a number:
+    ``float`` would reject it and so does this.
+
+    >>> _number("(1)    10")
+    10.0
+    >>> _number("32.12.22") is None
+    True
     """
+    text = _FOOTNOTE_MARKER.sub("", text)
     try:
         return float(text.replace(",", "").replace(" ", ""))
     except ValueError:

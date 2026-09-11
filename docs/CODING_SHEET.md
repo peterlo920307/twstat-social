@@ -22,7 +22,7 @@ often they agree, is the point.
 
 ## What you will do
 
-**Two to three hours.** 195 cells, three from each of the 65 sections, covering
+**Three hours or so.** 234 cells, three from each of the 78 sections, covering
 all 48 tables and the years 1898 to 1944.
 
 1. Get the source spreadsheets: `python scripts/download_raw.py`
@@ -63,7 +63,7 @@ genuinely ambiguous, rather than that the two of you were using different rules.
    random.
 5. **Copy the characters as printed.** Do not translate, do not modernise, do not
    normalise variant forms.
-6. **Code the column, not the number.** 33 of the 195 cells are blank because the
+6. **Code the column, not the number.** 37 of the 234 cells are blank because the
    figure was not surveyed or was unknown. Those are coded like the rest — the
    heading is still printed above them. The value is shown only to help you
    confirm you are looking at the right cell.
@@ -98,11 +98,13 @@ exists to produce, and which nobody can currently state.
 ## Reproducing the sheet
 
 ```bash
-twstat sample data/tidy.csv data/validation_sample.csv
+twstat sample data/tidy.csv data/validation_sample.csv --size 240
 ```
 
-Seed 20260909, 195 rows, three per section. The same seed gives the same sheet.
-Use `--size` and `--seed` for a different draw, and say which you used.
+Seed 20260909, 234 rows, three per section. `--size` is the target before the
+stratification rounds it to a whole number per section, which is why 240 gives
+234. The same seed gives the same sheet; use `--seed` for a different draw, and
+say which you used.
 
 ## Status
 

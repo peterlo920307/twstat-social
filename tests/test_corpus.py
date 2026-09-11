@@ -19,12 +19,13 @@ def tidy(raw_dir):
 
 
 def test_expected_shape(tidy):
-    # 36,570 until the brace pattern was widened in docs/W06_layout.md, which
-    # recovered 102 figures that had been set inside a drawn brace and were
-    # being discarded as unreadable. No existing value changed.
-    assert len(tidy) == 36_672
+    # These move whenever a reading rule changes, and each move is recorded in
+    # the changelog. The last three: the brace pattern was widened, footnote
+    # markers stopped disqualifying a figure, and three health tables were split
+    # into the header bands they actually contain.
+    assert len(tidy) == 36_735
     assert tidy["table_id"].nunique() == 48
-    assert tidy.groupby(["table_id", "section"]).ngroups == 65
+    assert tidy.groupby(["table_id", "section"]).ngroups == 78
 
 
 def test_every_value_matches_its_source_cell(tidy, raw_dir):
@@ -37,8 +38,11 @@ def test_years_lie_inside_the_colonial_period(tidy):
 
 
 def test_no_fragmented_labels_survive(tidy):
-    # A single-character dimension means a scattered header was not reassembled.
-    assert not [label for label in tidy["dim1"].dropna().unique() if len(label) <= 1]
+    # A single-character dimension usually means a scattered header was not
+    # reassembled. 癌 is the exception: it is a whole disease name, printed
+    # between 其他傳染病及寄生蟲病 and 其他惡性腫瘍 in three of the health tables.
+    short = [label for label in tidy["dim1"].dropna().unique() if len(label) <= 1]
+    assert short == ["癌"]
 
 
 def test_period_types_are_all_recognised(tidy):
@@ -70,3 +74,20 @@ def test_the_committed_dataset_is_what_the_package_produces(tidy):
         b = right[column].fillna("").astype(str)
         differing = (a != b).sum()
         assert not differing, f"{column}: {differing} rows differ; run twstat extract"
+
+
+def test_no_two_observations_claim_the_same_thing(tidy):
+    # Two rows with the same table, section, year and dimensions describe the
+    # same quantity, so they cannot hold different numbers. When three health
+    # tables were read with one header band each, 726 keys broke this and every
+    # value in them was individually correct. It is the cheapest structural
+    # check that would have caught it.
+    key = ["table_id", "section", "year", "dim1", "dim2"]
+    distinct = tidy.dropna(subset=["value"]).groupby(key, dropna=False)["value"].nunique()
+    conflicting = distinct[distinct > 1]
+    assert conflicting.empty, f"{len(conflicting)} keys carry more than one value"
+
+
+def test_each_source_cell_is_used_once(tidy):
+    counts = tidy.groupby(["table_id", "src_row", "src_col"]).size()
+    assert counts.max() == 1
