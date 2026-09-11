@@ -1,0 +1,11 @@
+# Text is stored and checked out with LF on every platform, so a file written on
+# Windows and one written on Linux compare equal byte for byte.
+* text=auto eol=lf
+
+# Source spreadsheets, scans and images are never text, whatever their contents
+# look like to a heuristic.
+*.xls  binary
+*.xlsx binary
+*.XLS  binary
+*.pdf  binary
+*.png  binary
