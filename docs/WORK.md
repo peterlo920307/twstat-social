@@ -93,3 +93,32 @@ engineering.
   of them are cross-sectional and outside this schema entirely.
 - Recover the distinction between 「－」 and 「…」, which the 2006 digitisation
   collapsed. Only the printed book can settle it.
+
+## Before the repository goes public
+
+Making it public is the author's decision. When it is made, these follow, and
+some have to come first.
+
+**Decide before**
+- [ ] `docs/T46_findings.md` line 12 names two editors and their work email
+      addresses, from a note about writing to them. Replacing them with a role
+      ("the CRDH editors") takes a minute, but the addresses stay in git history
+      from the first commit onward; removing them from history means rewriting it
+      and force-pushing, which is a separate decision. The archive address in T06
+      and T07 is a published institutional contact and is less of a concern.
+- [ ] `docs/JOHD_draft.md` is the unfinished draft of the paper, with the AI
+      declaration still blank. Either finish the declaration or keep the draft out
+      of the public tree until submission.
+- [ ] `docs/T44_findings.md` and `T46` rank publication venues and discuss an APC
+      waiver. Honest, and fine to publish, but a choice rather than an accident.
+- [ ] The title's start year, 1895 or 1897 (see the draft).
+
+**Do right after**
+- [ ] Protect `main`: require the `tests` and `checks` workflows to pass. Not
+      available while the repository is private on a free account.
+- [ ] Turn on private vulnerability reporting, which `SECURITY.md` points to.
+- [ ] Turn on Zenodo archiving for the repository; the release workflow does the
+      rest (`docs/zenodo_workflow.md`).
+- [ ] Remove "The repository is private for now" from the README's install
+      section.
+
